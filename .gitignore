@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.turbo/
+*.log
+
+# Real env files — only .env.example is versioned.
+.env
+.env.local
+apps/*/.env
+apps/*/.env.local
