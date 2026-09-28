@@ -12,14 +12,10 @@ arquivo.
 
 ## Estado atual do repositório
 
-Este é um repositório greenfield: ainda não existe código, apenas docs e
-`.env.example`. O projeto Supabase referenciado no `.env` **ainda não existe**
-— ele precisa ser criado como parte do trabalho.
-
-A primeira tarefa, antes de qualquer feature de negócio, é o scaffold
-completo do monorepo conforme a ADR 001: pnpm workspaces, Turborepo,
-`apps/web`, `apps/api` e os pacotes iniciais em `packages/*`
-(`eslint-config`, `tsconfig`, `api-contract`).
+O estado atual do trabalho (o que já existe, o que falta, próximos passos
+e dúvidas em aberto) é mantido em [docs/handoff.md](docs/handoff.md), não
+aqui. **Leia esse arquivo antes de começar qualquer tarefa** e
+atualize-o ao final de uma sessão de trabalho relevante.
 
 ## Autonomia e confirmação
 
