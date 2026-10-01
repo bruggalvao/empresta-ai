@@ -23,6 +23,9 @@ negócio implementada — o foco até aqui foi infraestrutura de projeto
 - Docs de produto e design: [PRD.md](PRD.md), [LAYOUT.md](LAYOUT.md),
   [adr/001-stack.md](adr/001-stack.md) e
   [adr/002-design-system.md](adr/002-design-system.md) (Proposto).
+- Modelagem de dados: [modelagem-dados.md](modelagem-dados.md) (diagrama
+  Mermaid) e `apps/api/prisma/` (schema, migration inicial, seed). Validada
+  só em Postgres local descartável; ainda não aplicada ao Supabase real.
 - Regras para agentes em `rules/`: `restrictions.md`, `checks.md`,
   `secrets.md`.
 - Turborepo na raiz (`turbo.json`, scripts `build`/`lint`/`test`/`dev`).
