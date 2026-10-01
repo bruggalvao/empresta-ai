@@ -53,6 +53,9 @@ equipamentos, por ser a base das outras features do PRD).
 
 ## Decisões pendentes / dúvidas em aberto
 
+- Fluxo de convite de usuários (cadastro fechado, ADR 001): sem spec nem
+  tabela; precisa de spec antes de implementar.
+- Linha de revisão na ADR 001 sobre `directUrl` no Prisma 7.
 - Aceitar a [ADR 002](adr/002-design-system.md) (status Proposto).
 - Contraste WCAG dos textos de baixa opacidade e layout mobile, listados
   como riscos na ADR 002.

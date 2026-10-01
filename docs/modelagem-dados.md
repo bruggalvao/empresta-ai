@@ -107,7 +107,7 @@ no SQL bruto (condicional, pois o schema `auth` só existe no Supabase). `profil
 o papel é por tenant em `memberships`, como na ADR 001.
 
 **Histórico preservado.** FKs de `loans` e `audit_log` são `RESTRICT`: não se apaga equipamento,
-pessoa ou tenant que tenha histórico. Aposentar um item exigiria um status novo (ver dúvidas).
+pessoa ou tenant que tenha histórico. Aposentar item está fora do escopo da v1 (ver decisões fechadas).
 
 ## Onde cada regra é garantida
 
@@ -159,17 +159,21 @@ empréstimo passou. O seed rodou duas vezes sem duplicar. Nenhum banco real foi 
 Não foi verificado: execução em um projeto Supabase real e o comportamento do RLS sob JWT
 (não há policies; a camada é deny all).
 
-## Dúvidas em aberto
+## Decisões fechadas
 
-1. **Categoria como enum ou tabela?** Enum atende às 5 categorias do LAYOUT; acrescentar uma
-   exige migration. Tabela por tenant permitiria Operações criar categorias.
-2. **Aposentar equipamento.** O LAYOUT cita "inativo" na paleta, mas a v1 só tem Disponível e
-   Manutenção. Falta um `RETIRED` (ou `deleted_at`) se Operações precisar baixar itens.
-3. **Convites.** O cadastro é fechado por convite (ADR 001), mas não há tabela de convites: o
-   fluxo ficou fora do escopo da ADR. Decidir se usa o convite nativo do Supabase Auth.
-4. **Fuso do prazo.** `due_date` é uma data; "hoje" deve ser calculado em `America/Sao_Paulo`
-   (as functions da Vercel rodam em UTC).
-5. **Previsão de retorno da manutenção.** O LAYOUT mostra "retorna em 05/09" dentro da
-   observação; hoje é texto livre em `notes`. Se precisar filtrar ou alertar, vira coluna `date`.
-6. **Prisma 7.** O schema usa a sintaxe do Prisma 7 (URLs em `prisma.config.ts`, driver
-   adapter). A ADR 001 cita `directUrl` do Prisma 6 e anteriores: vale uma linha de revisão lá.
+1. **Categoria é enum.** As 5 categorias do LAYOUT são fixas na v1; o PRD não pede categoria
+   configurável. Acrescentar uma exige migration.
+2. **Aposentar equipamento está fora do escopo.** O PRD não prevê edição, baixa ou exclusão de
+   equipamento. Sem status `RETIRED` nem `deleted_at` na v1.
+3. **Convites seguem a ADR 001.** Cadastro fechado, por convite de administrador. Não há tabela
+   de convites no modelo; o fluxo continua não coberto (ADR 001, seção 5) e precisa de spec antes
+   de ser implementado.
+4. **Fuso é `America/Sao_Paulo`.** `due_date` é uma data; "hoje" é calculado nesse fuso, não em
+   UTC (as functions da Vercel rodam em UTC).
+5. **Previsão de retorno da manutenção segue o PRD.** O PRD só exige que item em manutenção não
+   apareça como disponível; a observação fica como texto livre em `notes`.
+
+## Pendente
+
+- **Prisma 7.** O schema usa a sintaxe do Prisma 7 (URLs em `prisma.config.ts`, driver adapter).
+  A ADR 001 cita `directUrl` do Prisma 6 e anteriores: falta uma linha de revisão lá.

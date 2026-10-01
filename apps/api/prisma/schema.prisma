@@ -120,6 +120,7 @@ model Loan {
   borrowerId   String    @map("borrower_id") @db.Uuid
   loanedAt     DateTime  @default(now()) @map("loaned_at") @db.Timestamptz(6)
   // Calendar date (business day), loanedAt + tenant.loanPeriodDays at creation time.
+  // "Today" for overdue checks is computed in America/Sao_Paulo, not UTC.
   dueDate      DateTime  @map("due_date") @db.Date
   returnedAt   DateTime? @map("returned_at") @db.Timestamptz(6)
   // Who registered the return: the borrower (self-service) or Operations (counter).
