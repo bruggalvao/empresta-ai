@@ -1,6 +1,6 @@
 # Specs (Spec-Driven Development)
 
-Este diretório guarda as specs de feature do empresta.ai. O padrão é
+Este diretório guarda as specs de feature do empresta-ai. O padrão é
 **spec-driven development (SDD)**: antes de implementar uma feature não
 trivial, ela é especificada em texto, revisada e só então vira código.
 

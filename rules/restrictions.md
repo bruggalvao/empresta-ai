@@ -1,7 +1,7 @@
 # restrictions.md
 
 Limites de ação do agente neste repositório. Complementa
-[AGENTS.md](AGENTS.md) — as regras de confirmação para ações de infra
+[AGENTS.md](../AGENTS.md) — as regras de confirmação para ações de infra
 definidas lá continuam valendo; este arquivo não substitui nem afrouxa nada
 de lá.
 
@@ -14,7 +14,7 @@ credenciais.
 ## Stack e dependências
 
 - Pode instalar dependências pequenas/utilitárias livremente.
-- Nunca substituir uma peça já decidida na [ADR 001](docs/adr/001-stack.md)
+- Nunca substituir uma peça já decidida na [ADR 001](../docs/adr/001-stack.md)
   (ex.: trocar Prisma, NestJS, Tailwind, Zustand, etc. por outra
   alternativa) sem confirmação explícita.
 

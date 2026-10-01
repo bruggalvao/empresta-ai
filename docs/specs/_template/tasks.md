@@ -18,5 +18,5 @@ Cada item deve ser pequeno o suficiente para revisar sozinho e verificável
 ## Verificação
 
 - [ ] Testes automatizados cobrindo os critérios de aceite da spec
-- [ ] `lint`, `test` e `build` passando (ver [checks.md](../../../checks.md))
+- [ ] `lint`, `test` e `build` passando (ver [checks.md](../../../rules/checks.md))
 - [ ] Critérios de aceite do [spec.md](./spec.md) revalidados manualmente

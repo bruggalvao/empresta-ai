@@ -2,17 +2,17 @@
 
 - **Status:** Aceito
 - **Data:** 2026-09-03
-- **Decisores:** Time Técnico / Operações (empresta.ai)
-- **Origem / Insumo:** [docs/STACKS.md](../STACKS.md)
+- **Decisores:** Time Técnico / Operações (empresta-ai)
 - **Revisões:**
   - 2026-09-21 — estrutura de repositórios alterada de dois repositórios separados para monorepo (seções 2.1, 2.4, 2.8, 2.9, 3 e 4).
   - 2026-09-21 — Supabase CLI passa a ser co-responsável pelas migrações, junto com Prisma Migrate, revertendo a decisão original de dono único (seções 2.5 e 3).
+  - 2026-10-01 — a referência visual deixa de ser o Figma e passa a ser o [ADR 002](002-design-system.md) (seções 2.2 e 3).
 
 ---
 
 ## 1. Contexto e Problema
 
-O projeto **empresta.ai** tem como objetivo resolver o controle interno de empréstimos de equipamentos (notebooks, monitores, periféricos, câmeras etc.), hoje gerido por planilhas manuais com alto índice de desorganização, atrasos e perda de rastreabilidade.
+O projeto **empresta-ai** tem como objetivo resolver o controle interno de empréstimos de equipamentos (notebooks, monitores, periféricos, câmeras etc.), hoje gerido por planilhas manuais com alto índice de desorganização, atrasos e perda de rastreabilidade.
 
 Para viabilizar a entrega de forma rápida, previsível, com baixo custo operacional e alinhada ao escopo didático/acadêmico da disciplina, faz-se necessária a padronização das decisões técnicas de infraestrutura, arquitetura de software, frontend, backend, persistência, autenticação e processo de integração contínua.
 
@@ -37,7 +37,7 @@ Adota-se a seguinte composição de stack tecnológica e arquitetura:
 - **Estado de Servidor:** TanStack Query (cache, revalidação, retries e estados assíncronos prontos).
 - **Estado de Cliente:** Zustand (gestão pontual de filtros, modais e wizards de UI).
 - **Formulários:** React Hook Form integrado a schemas Zod via `zodResolver`.
-- **Estilização e Componentes:** Tailwind CSS com componentes copiados via **shadcn/ui** (customização direta e fidelidade total ao design Figma).
+- **Estilização e Componentes:** Tailwind CSS com componentes copiados via **shadcn/ui** (customização direta e fidelidade ao design system definido no [ADR 002](002-design-system.md)).
 - **Cliente da API:** Gerado automaticamente a partir de `openapi.json` usando **orval**.
 
 ### 2.3 Backend
@@ -131,7 +131,7 @@ Adota-se a seguinte composição de stack tecnológica e arquitetura:
 | `class-validator` | Não unifica validação em runtime e geração de schema OpenAPI a partir da mesma fonte (Zod). |
 | Jest no frontend | Incompatibilidade nativa com a cadeia de build do Vite, exigindo transpilação paralela. |
 | Redux Toolkit | Complexidade e boilerplate desnecessários para o volume reduzido de estado de cliente. |
-| Componentes com design opinionated (MUI, Mantine) | Conflito com a identidade visual e protótipo definido no Figma. |
+| Componentes com design opinionated (MUI, Mantine) | Conflito com a identidade visual definida no [ADR 002](002-design-system.md). |
 | Next.js | SPA atende integralmente os requisitos sem o acoplamento de backend/SSR. |
 | VPS / Containers dedicados (Fly.io, AWS ECS) | Custo adicional e complexidade de orquestração fora do escopo da hospedagem serverless escolhida. |
 

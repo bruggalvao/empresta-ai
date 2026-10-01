@@ -15,7 +15,7 @@ do Supabase, ou ao escrever código que lê configuração.
 1. `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY`: chave pública. Só ela
    pode aparecer em código que roda no navegador (`apps/web`). A
    proteção dela é o RLS habilitado em todas as tabelas (ver
-   [docs/adr/001-stack.md](docs/adr/001-stack.md), seção 2.7).
+   [docs/adr/001-stack.md](../docs/adr/001-stack.md), seção 2.7).
 2. `SUPABASE_SERVICE_ROLE_KEY`: bypassa RLS. Só em código de
    `apps/api`, nunca em `apps/web`, nunca em variável com prefixo
    `VITE_`.
@@ -43,4 +43,4 @@ real.
 - Não contorne o RLS trocando `anon` por `service_role` no front. Se a
   política atrapalha, a política está errada — pare e avise.
 - Não leia nem edite `apps/api/.env` ou `apps/web/.env` reais (ver
-  [rules/restrictions.md](rules/restrictions.md)) — apenas `.env.example`.
+  [restrictions.md](restrictions.md)) — apenas `.env.example`.

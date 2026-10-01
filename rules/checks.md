@@ -11,22 +11,26 @@ alwaysApply: true
 Sempre que você for dizer "pronto", "implementado" ou "funcionando".
 
 ## Procedimento
-1. Rode `pnpm turbo run test --filter=...[origin/main]`. Cole a última
-   linha da saída na resposta.
+1. Rode `pnpm turbo run lint test --filter=...[origin/main]`. Cole a
+   última linha da saída na resposta. Workspaces que ainda não têm o
+   script correspondente são ignorados pelo Turborepo; não invente o
+   script só para passar.
 2. Se a tarefa tocou em migration, rode `prisma migrate reset` (ou
    `supabase db reset`, ambos co-responsáveis pelas migrações — ver
-   [docs/adr/001-stack.md](docs/adr/001-stack.md)) local e confirme que o
+   [docs/adr/001-stack.md](../docs/adr/001-stack.md)) local e confirme que o
    banco sobe do zero com todas as migrations.
 3. Rode `pnpm turbo run build --filter=...[origin/main]` antes de
    qualquer push. Build que quebra na Vercel é o feedback mais lento e
    mais caro deste projeto.
 4. Rode `git status --short`. Só podem aparecer arquivos do escopo
-   da tarefa (ver [rules/restrictions.md](rules/restrictions.md) sobre escopo).
-5. Diga qual item do [docs/PRD.md](docs/PRD.md) esta tarefa atende (ex:
+   da tarefa (ver [restrictions.md](restrictions.md) sobre escopo).
+5. Se a tarefa criou ou alterou uma variável de ambiente, siga
+   [secrets.md](secrets.md) e diga em quais lugares ela já foi colocada.
+6. Diga qual item do [docs/PRD.md](../docs/PRD.md) esta tarefa atende (ex:
    "PRD item 3: solicitar empréstimo").
 
 ## Verificação
-Pronto = os quatro comandos terminaram sem falha E o git status não
+Pronto = lint, test e build terminaram sem falha E o git status não
 trouxe surpresa. As duas coisas, não uma.
 
 ## Não faça
