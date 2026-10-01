@@ -1,5 +1,14 @@
 {
   "name": "empresta-ai",
   "private": true,
-  "packageManager": "pnpm@12.5.1"
+  "packageManager": "pnpm@12.5.1",
+  "devDependencies": {
+    "turbo": "^2.11.5"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "dev": "turbo run dev"
+  }
 }
