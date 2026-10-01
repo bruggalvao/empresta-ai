@@ -1,5 +1,10 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig, env } from "prisma/config";
+
+// Per .env.example the API reads apps/api/.env; fall back to the repo-root .env
+// (dotenv never overrides variables that are already set).
+config();
+config({ path: "../../.env" });
 
 // Prisma 7: connection URLs live here, not in schema.prisma.
 // Migrations use the direct connection (port 5432); runtime uses DATABASE_URL

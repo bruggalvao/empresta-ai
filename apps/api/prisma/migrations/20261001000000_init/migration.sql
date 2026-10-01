@@ -217,8 +217,8 @@ CREATE TRIGGER "audit_log_no_truncate"
   FOR EACH STATEMENT EXECUTE FUNCTION "audit_log_reject_mutation"();
 
 -- Row Level Security: deny by default ------------------------------------------------
--- RLS is defense in depth (ADR 001 §2.7). With RLS on and NO policies, the Supabase
--- roles `anon` and `authenticated` see nothing. The API connects as the table owner,
+-- RLS is defense in depth (ADR 001 §2.7). With RLS on and only a deny-all policy, the
+-- Supabase roles `anon` and `authenticated` see nothing. The API connects as the table owner,
 -- which bypasses RLS, and enforces authorization with Nest guards + CASL.
 -- Do not add permissive policies without a decision recorded in an ADR.
 
@@ -229,6 +229,16 @@ ALTER TABLE "equipment"   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "loans"       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "audit_log"   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "rate_limits" ENABLE ROW LEVEL SECURITY;
+
+-- Explicit deny policy on every table (rules/migration.md: no table without a policy).
+-- USING (false) matches no row for any role subject to RLS; the owner still bypasses it.
+CREATE POLICY "deny_all" ON "tenants"     FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY "deny_all" ON "profiles"    FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY "deny_all" ON "memberships" FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY "deny_all" ON "equipment"   FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY "deny_all" ON "loans"       FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY "deny_all" ON "audit_log"   FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY "deny_all" ON "rate_limits" FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
 
 -- Belt and braces: the Data API roles get no table privileges either.
 DO $$
