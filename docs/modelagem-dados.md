@@ -172,8 +172,3 @@ Não foi verificado: execução em um projeto Supabase real e o comportamento do
    UTC (as functions da Vercel rodam em UTC).
 5. **Previsão de retorno da manutenção segue o PRD.** O PRD só exige que item em manutenção não
    apareça como disponível; a observação fica como texto livre em `notes`.
-
-## Pendente
-
-- **Prisma 7.** O schema usa a sintaxe do Prisma 7 (URLs em `prisma.config.ts`, driver adapter).
-  A ADR 001 cita `directUrl` do Prisma 6 e anteriores: falta uma linha de revisão lá.

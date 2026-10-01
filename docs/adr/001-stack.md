@@ -7,6 +7,7 @@
   - 2026-09-21 — estrutura de repositórios alterada de dois repositórios separados para monorepo (seções 2.1, 2.4, 2.8, 2.9, 3 e 4).
   - 2026-09-21 — Supabase CLI passa a ser co-responsável pelas migrações, junto com Prisma Migrate, revertendo a decisão original de dono único (seções 2.5 e 3).
   - 2026-10-01 — a referência visual deixa de ser o Figma e passa a ser o [ADR 002](002-design-system.md) (seções 2.2 e 3).
+  - 2026-10-01 — Prisma 7: as URLs de conexão saem do `schema.prisma` (`directUrl`) e passam para `prisma.config.ts`, com driver adapter no runtime (seção 2.5).
 
 ---
 
@@ -63,8 +64,8 @@ Adota-se a seguinte composição de stack tecnológica e arquitetura:
 - **ORM:** Prisma.
 - **Dono do Schema:** Prisma Migrate e Supabase CLI como **co-responsáveis** pelas migrações estruturais (decisão revertida em 2026-09-21; risco de conflito de estado entre as duas ferramentas é aceito).
 - **Objetos SQL Nativos:** RLS, policies, functions e triggers versionados como SQL bruto dentro das próprias migrações do Prisma Migrate.
-- **Conexão de Runtime:** Supavisor em porta 6543 (`?pgbouncer=true&connection_limit=1`) para evitar esgotamento de pool em ambiente serverless.
-- **Conexão de Migração:** `directUrl` em porta 5432 (porta direta necessária para comandos DDL).
+- **Conexão de Runtime:** Supavisor em porta 6543 (`?pgbouncer=true&connection_limit=1`) para evitar esgotamento de pool em ambiente serverless. No Prisma 7 o client usa driver adapter (`@prisma/adapter-pg`) com `DATABASE_URL`.
+- **Conexão de Migração:** `DIRECT_URL` em porta 5432 (porta direta necessária para comandos DDL), configurada em `prisma.config.ts` (no Prisma 7 não existe mais `directUrl` no `schema.prisma`).
 - **Seed:** Script `prisma/seed.ts` idempotente, provisionando o tenant inicial `suporte_ti`.
 
 ### 2.6 Multi-Tenancy
