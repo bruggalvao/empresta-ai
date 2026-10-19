@@ -51,9 +51,10 @@ endpoint de health.
   `packages/api-contract` do scaffold previsto na ADR 001.
 - Adapter serverless da API para a Vercel (`@vendia/serverless-express`),
   OpenAPI, helmet, CORS, validação de env com Zod, guards de auth.
-- Remoto git: o repositório não tem `origin` e não existe branch `main`
-  local. O filtro `--filter=...[origin/main]` dos checks só funciona depois
-  de criar o remoto e a `main`; até lá, rode os checks sem filtro.
+- Remoto git: o repositório não tem `origin`. A `main` local foi criada em
+  2026-10-19 (fast-forward a partir de `feature/landing-and-health`), mas
+  como não há `origin/main`, o filtro `--filter=...[origin/main]` dos checks
+  só funciona depois de criar o remoto; até lá, rode os checks sem filtro.
 - Projeto Supabase real (banco, Auth, chaves) — o `.env` local referencia um
   projeto que ainda precisa ser criado. Requer confirmação do usuário
   antes de criar (ver [rules/restrictions.md](../rules/restrictions.md)).
@@ -64,8 +65,8 @@ endpoint de health.
 ## Em andamento / próximo passo sugerido
 
 Landing page e `GET /v1/health` implementados na branch
-`feature/landing-and-health`, ainda sem PR (não há remoto). Próximo passo
-natural: criar o remoto e a `main`, completar o scaffold do monorepo
+`feature/landing-and-health` e integrados à `main` local (sem PR, pois não
+há remoto). Próximo passo natural: criar o remoto e dar push, completar o scaffold do monorepo
 (`packages/*`) conforme a ADR 001, ou escrever a primeira spec de feature
 (candidata natural: catálogo de equipamentos, por ser a base das outras
 features do PRD).
