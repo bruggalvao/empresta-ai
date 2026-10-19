@@ -45,16 +45,25 @@ endpoint de health.
 - Skills de agente versionadas em `.agents/skills/` e
   `.claude/skills/`, com `skills-lock.json`.
 
+- Vercel (time BGGTeam, projetos ligados ao GitHub, deploy automático a
+  cada push na `main`): `empresta-ai-front` (Root Directory `apps/web`,
+  https://empresta-ai-front.vercel.app) e `empresta-ai-api` (Root Directory
+  `apps/api`, https://empresta-ai-api.vercel.app/v1/health). A API roda como
+  função serverless em `apps/api/api/index.js` (reaproveita a instância
+  Express do Nest compilada em `dist/`; `vercel.json` define rewrite e
+  `outputDirectory: public`). Nenhuma variável de ambiente foi cadastrada
+  ainda (nenhuma é necessária hoje); o `turbo-ignore` da ADR 001 não foi
+  configurado.
+
 ## O que ainda não existe
 
 - Os pacotes `packages/eslint-config`, `packages/tsconfig`,
   `packages/api-contract` do scaffold previsto na ADR 001.
 - Adapter serverless da API para a Vercel (`@vendia/serverless-express`),
   OpenAPI, helmet, CORS, validação de env com Zod, guards de auth.
-- Remoto git: o repositório não tem `origin`. A `main` local foi criada em
-  2026-10-19 (fast-forward a partir de `feature/landing-and-health`), mas
-  como não há `origin/main`, o filtro `--filter=...[origin/main]` dos checks
-  só funciona depois de criar o remoto; até lá, rode os checks sem filtro.
+- Remoto git: `origin` = https://github.com/bruggalvao/empresta-ai.git, com
+  `main` publicada. O filtro `--filter=...[origin/main]` dos checks já
+  funciona. As demais branches seguem só locais.
 - Projeto Supabase real (banco, Auth, chaves) — o `.env` local referencia um
   projeto que ainda precisa ser criado. Requer confirmação do usuário
   antes de criar (ver [rules/restrictions.md](../rules/restrictions.md)).
