@@ -10,7 +10,7 @@ Monorepo com pnpm workspaces e Turborepo (ver [ADR 001](docs/adr/001-stack.md)).
 
 ```
 apps/web      SPA (Vite + React + TypeScript)
-apps/api      API NestJS — ainda não criada
+apps/api      API NestJS (GET /v1/health) + Prisma
 packages/*    pacotes compartilhados — ainda não criados
 docs/         PRD, layout, ADRs, specs e handoff
 rules/        regras para agentes (restrições, verificação, segredos)
