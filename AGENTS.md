@@ -46,6 +46,16 @@ precisa de confirmação prévia.
 - Tudo o mais — UI, documentação de negócio (PRD, ADRs), textos voltados ao
   usuário final — em **PT-BR**, consistente com os docs já existentes.
 
+## Verificação de specs
+
+Quando todas as tarefas de uma spec em `docs/specs/<feature>/` estiverem
+concluídas, e antes de declará-la pronta, acione o subagent
+`verificador-spec` ([.claude/agents/verificador-spec.md](.claude/agents/verificador-spec.md)),
+informando o caminho da `spec.md` e o que verificar (intervalo de commits
+ou arquivos). Ele só lê e roda lint/test/build, não edita nada, e devolve
+a tabela de critérios de aceite com o veredito. Subagents do projeto ficam
+em `.claude/agents/`.
+
 ## Antes de considerar uma tarefa concluída
 
 Sempre que os workspaces já tiverem os scripts correspondentes, rode

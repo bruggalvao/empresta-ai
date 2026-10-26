@@ -44,6 +44,8 @@ endpoint de health.
   `apps/api` (tem `build` e `test`, ainda sem `lint`).
 - Skills de agente versionadas em `.agents/skills/` e
   `.claude/skills/`, com `skills-lock.json`.
+- Subagent `verificador-spec` em `.claude/agents/verificador-spec.md`
+  (verifica os critérios de aceite de uma spec antes de dá-la por pronta).
 
 - Vercel (time BGGTeam, projetos ligados ao GitHub, deploy automático a
   cada push na `main`): `empresta-ai-front` (Root Directory `apps/web`,
