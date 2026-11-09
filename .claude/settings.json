@@ -20,6 +20,17 @@
             "onFailure": "block"
           }
         ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-image-upload.mjs"],
+            "onFailure": "block"
+          }
+        ]
       }
     ],
     "Stop": [
