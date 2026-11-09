@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Stop hook in the verificador-spec frontmatter (runs as SubagentStop).
+// SubagentStop hook in .claude/settings.json (matcher: verificador-spec).
 // Saves the verifier's final answer, stamped with the code state it refers to,
 // into docs/specs/<feature>/verificacoes/<UTC timestamp>-<sha7>.md.
 //
@@ -20,7 +20,46 @@ import {
 } from '../../scripts/spec-verification.mjs';
 
 const input = await readStdinJson();
-const message = String(input.last_assistant_message ?? '').replace(/\r\n/g, '\n');
+if (input.agent_type && input.agent_type !== 'verificador-spec') process.exit(0);
+
+// A background verifier hands its report back through the SubagentHandback
+// tool, so the report may not be in last_assistant_message. Fall back to the
+// last handback (or last assistant text) in the subagent transcript.
+function reportFromTranscript(file) {
+  try {
+    const entries = fs
+      .readFileSync(file, 'utf8')
+      .trim()
+      .split('\n')
+      .map((l) => {
+        try {
+          return JSON.parse(l);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .reverse();
+    for (const e of entries) {
+      const blocks = Array.isArray(e.message?.content) ? e.message.content : [];
+      const handback = blocks.find((b) => b.type === 'tool_use' && b.name === 'SubagentHandback');
+      if (handback?.input?.message) return String(handback.input.message);
+      if (e.message?.role === 'assistant') {
+        const text = blocks.filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+        if (/^\s*Spec:/m.test(text)) return text;
+      }
+    }
+  } catch {
+    // unreadable transcript: handled as missing report below
+  }
+  return '';
+}
+
+const last = String(input.last_assistant_message ?? '');
+const message = (/^\s*Spec:/m.test(last) ? last : reportFromTranscript(input.agent_transcript_path) || last).replace(
+  /\r\n/g,
+  '\n',
+);
 
 function block(reason) {
   // Ask the verifier to fix its output format once; never loop.

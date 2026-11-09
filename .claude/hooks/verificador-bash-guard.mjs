@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// PreToolUse(Bash) hook scoped to the verificador-spec subagent (see its
-// frontmatter). Deny by default: only the checks from rules/checks.md and
+// PreToolUse(Bash|PowerShell) hook in .claude/settings.json, effective only
+// inside the verificador-spec subagent. Deny by default: only the checks from rules/checks.md and
 // read-only git commands are allowed. This is what keeps the verifier from
 // fixing code, committing, migrating, seeding or deploying.
 //
-// Fails closed twice: any error inside this script denies the command, and the
-// frontmatter sets `onFailure: block` for crashes before this code runs.
+// Fails closed twice: any error inside this script denies the command, and
+// settings.json sets `onFailure: block` for crashes before this code runs.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -40,7 +40,10 @@ function pinnedPnpmVersion(cwd) {
 try {
   const { readStdinJson } = await import('../../scripts/spec-verification.mjs');
   const input = await readStdinJson();
-  if (input.tool_name !== 'Bash') process.exit(0);
+  // Registered in .claude/settings.json for every agent; applies only inside
+  // the verifier (agent_type is set when the hook fires in a subagent).
+  if (input.agent_type !== 'verificador-spec') process.exit(0);
+  if (input.tool_name !== 'Bash' && input.tool_name !== 'PowerShell') process.exit(0);
 
   const cwd = input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
   const pnpmVersion = pinnedPnpmVersion(cwd);

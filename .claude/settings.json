@@ -31,6 +31,29 @@
             "onFailure": "block"
           }
         ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/verificador-bash-guard.mjs"],
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "verificador-spec",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/verificador-record.mjs"]
+          }
+        ]
       }
     ],
     "Stop": [
