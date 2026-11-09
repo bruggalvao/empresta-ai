@@ -52,9 +52,26 @@ Quando todas as tarefas de uma spec em `docs/specs/<feature>/` estiverem
 concluídas, e antes de declará-la pronta, acione o subagent
 `verificador-spec` ([.claude/agents/verificador-spec.md](.claude/agents/verificador-spec.md)),
 informando o caminho da `spec.md` e o que verificar (intervalo de commits
-ou arquivos). Ele só lê e roda lint/test/build, não edita nada, e devolve
-a tabela de critérios de aceite com o veredito. Subagents do projeto ficam
-em `.claude/agents/`.
+ou arquivos). Ele só lê e roda lint/test/build, não edita nada — nem
+testes — e devolve a tabela de critérios de aceite com o veredito.
+Subagents do projeto ficam em `.claude/agents/`.
+
+Isso não depende de lembrar: é garantido por hooks
+([.claude/settings.json](.claude/settings.json), lógica em
+[scripts/spec-verification.mjs](scripts/spec-verification.mjs)):
+
+- **Gatilho:** com todas as tarefas do `tasks.md` marcadas e sem registro
+  de verificação para o código atual, o agente não consegue encerrar o
+  turno.
+- **Registro:** cada rodada do verificador é gravada pelo harness em
+  `docs/specs/<feature>/verificacoes/<data>-<sha>.md`, com commit, hash dos
+  CA e modelo. Esses arquivos são commitados e ninguém os edita.
+- **Trava de status:** `Status: implementada` só é aceito com registro
+  `PRONTA` válido (árvore limpa, mesmos CA, nenhum código alterado depois).
+  O CI (`.github/workflows/spec-verification.yml`) repete a checagem no PR.
+
+Verificação só vale para código commitado: commite antes de acionar o
+verificador.
 
 ## Antes de considerar uma tarefa concluída
 
