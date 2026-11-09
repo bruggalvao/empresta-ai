@@ -91,9 +91,14 @@ endpoint de health.
 - Remoto git: `origin` = https://github.com/bruggalvao/empresta-ai.git, com
   `main` publicada. O filtro `--filter=...[origin/main]` dos checks já
   funciona. As demais branches seguem só locais.
-- Projeto Supabase real (banco, Auth, chaves) — o `.env` local referencia um
-  projeto que ainda precisa ser criado. Requer confirmação do usuário
-  antes de criar (ver [rules/restrictions.md](../rules/restrictions.md)).
+- Supabase configurado no app. Decisão do usuário (2026-11-09): o projeto é
+  **Empresta.AI Project** (`bnxelaknojdqswytnmuc`, organização "time do
+  bgg", plano free, já com 2 projetos ativos). O endereço antigo
+  `gkicttuoyjicaonzjoyp.supabase.co` não existe mais (DNS ENOTFOUND) e ainda
+  está no `apps/web/.env`; o `apps/api/.env` passou a apontar para o projeto
+  certo para o upload das fotos. Falta: corrigir `apps/web/.env`, cadastrar
+  as variáveis na Vercel e aplicar migrations/seed (Entrega 3, com
+  confirmação do usuário).
 - Telas do produto (login, catálogo, empréstimos, Operações). Só existe a
   landing page.
 
