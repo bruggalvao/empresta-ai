@@ -1,6 +1,6 @@
 # Spec: Biblioteca de renderização de fotos de equipamento
 
-Status: aprovada
+Status: implementada
 Referências: [PRD.md](../../PRD.md)#o-que-precisa-existir-na-primeira-versao (item 2: catálogo) · [LAYOUT.md](../../LAYOUT.md) · [ADR 001](../../adr/001-stack.md) §2.2 e §2.8 · [ADR 002](../../adr/002-design-system.md) · contrato da Entrega 2 da prática
 
 ## Problema

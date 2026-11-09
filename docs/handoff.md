@@ -53,8 +53,21 @@ endpoint de health.
   e git somente leitura, e checagem no CI
   (`.github/workflows/spec-verification.yml`). Lógica comum em
   `scripts/spec-verification.mjs`. Template de spec agora exige IDs `CA-n`.
+  Todos os hooks ficam em `.claude/settings.json`: hooks no frontmatter do
+  subagente não rodaram na primeira rodada real (corrigido em `4071865`).
   Pedido do tech lead de o verificador corrigir teste quebrado foi
   recusado (contraria a independência exigida) — registrar no ENTREGA.md.
+- Skill `imagens-equipamentos` (`.claude/skills/`) sobre o workspace
+  `packages/equipment-images`: Pixabay (cache 24h), filtro de tags,
+  recorte 800×600 com jimp ([ADR 003](adr/003-processamento-de-imagens.md)),
+  `creditos.json`/`rejeicoes.json` versionados, folha de revisão e upload
+  para o bucket público `equipamentos`. O upload é só humano (hook
+  `guard-image-upload.mjs` + recusa com `CLAUDECODE`). Precisa de
+  `PIXABAY_API_KEY` em `apps/api/.env`.
+- Biblioteca de renderização em `apps/web/src/lib/equipment-photo/`
+  (spec `biblioteca-renderizacao`, implementada e verificada): toda foto de
+  equipamento passa por `EquipmentPhotoArea` + `EquipmentPhoto`. O
+  `apps/web` agora tem `test` (Vitest + Testing Library + jsdom 28).
 
 - Vercel (time BGGTeam, projetos ligados ao GitHub, deploy automático a
   cada push na `main`): `empresta-ai-front` (Root Directory `apps/web`,
@@ -78,7 +91,6 @@ endpoint de health.
 - Projeto Supabase real (banco, Auth, chaves) — o `.env` local referencia um
   projeto que ainda precisa ser criado. Requer confirmação do usuário
   antes de criar (ver [rules/restrictions.md](../rules/restrictions.md)).
-- Qualquer spec de feature em `docs/specs/` além do template.
 - Telas do produto (login, catálogo, empréstimos, Operações). Só existe a
   landing page.
 
@@ -92,10 +104,17 @@ há remoto). Próximo passo natural: criar o remoto e dar push, completar o scaf
 features do PRD).
 
 Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
-(verificador obrigatório) implementada em `feature/verificador-obrigatorio`.
-Falta a prova com erro plantado, que será feita sobre a spec
-`dados-iniciais` (Entrega 3) quando ela estiver implementada. Os hooks de
-frontmatter do verificador ainda não foram exercitados numa rodada real.
+(verificador obrigatório) em `feature/verificador-obrigatorio`; Entrega 2
+(skill + biblioteca) em `feature/imagens-equipamentos`, empilhada sobre a
+Entrega 1. Nenhuma das duas tem PR ainda. Falta:
+- Rodar `images:prepare` (precisa da `PIXABAY_API_KEY` em `apps/api/.env`),
+  revisar por amostragem `packages/equipment-images/out/revisao.html` e o
+  usuário rodar `images:upload` no terminal dele.
+- Cadastrar `PIXABAY_API_KEY` nos dois projetos Vercel (decisão de seguir
+  `rules/secrets.md` ao pé da letra).
+- A prova com erro plantado da Entrega 1, sobre a spec `dados-iniciais`.
+- Decidir na spec da Entrega 4 o conflito entre o briefing ("sem texto de
+  crédito") e o CA-7 da biblioteca.
 
 ## Decisões pendentes / dúvidas em aberto
 
