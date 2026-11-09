@@ -67,8 +67,12 @@ Isso não depende de lembrar: é garantido por hooks
   `docs/specs/<feature>/verificacoes/<data>-<sha>.md`, com commit, hash dos
   CA e modelo. Esses arquivos são commitados e ninguém os edita.
 - **Trava de status:** `Status: implementada` só é aceito com registro
-  `PRONTA` válido (árvore limpa, mesmos CA, nenhum código alterado depois).
-  O CI (`.github/workflows/spec-verification.yml`) repete a checagem no PR.
+  `PRONTA` válido (escopo sem alteração pendente, mesmos CA, nenhum código
+  do escopo alterado depois). O CI (`.github/workflows/spec-verification.yml`)
+  repete a checagem no PR.
+- **Escopo:** o `plan.md` de cada spec declara, na linha `Escopo de código:`,
+  o código que pode afetar os CA. Mudança fora dele não invalida a
+  verificação; sem a linha, vale o repositório inteiro.
 
 Verificação só vale para código commitado: commite antes de acionar o
 verificador.

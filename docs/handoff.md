@@ -55,6 +55,9 @@ endpoint de health.
   `scripts/spec-verification.mjs`. Template de spec agora exige IDs `CA-n`.
   Todos os hooks ficam em `.claude/settings.json`: hooks no frontmatter do
   subagente não rodaram na primeira rodada real (corrigido em `4071865`).
+  Validade do registro é por escopo: o `plan.md` declara `Escopo de código:`
+  e só mudança ali invalida a verificação (antes, qualquer código do repo
+  invalidava — o ajuste do filtro de fotos derrubou o registro da biblioteca).
   Pedido do tech lead de o verificador corrigir teste quebrado foi
   recusado (contraria a independência exigida) — registrar no ENTREGA.md.
 - Skill `imagens-equipamentos` (`.claude/skills/`) sobre o workspace

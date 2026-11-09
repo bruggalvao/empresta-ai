@@ -9,7 +9,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
+  codeScope,
   criteriaHash,
+  describeScope,
   dirtyCodeFiles,
   featureFromSpecPath,
   headSha,
@@ -110,7 +112,8 @@ function modelFromTranscript(file) {
 }
 
 const sha = headSha(root);
-const dirty = dirtyCodeFiles(root);
+const scope = codeScope(root, feature);
+const dirty = dirtyCodeFiles(root, scope);
 const now = new Date();
 const stamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
 const dir = recordsDir(root, feature);
@@ -124,6 +127,7 @@ const header = [
   `- Commit: ${sha}`,
   `- Árvore limpa: ${dirty.length ? `não (${dirty.length} arquivo(s) de código alterado(s); este registro não libera a spec)` : 'sim'}`,
   `- Hash dos CA: ${criteriaHash(fs.readFileSync(specAbs, 'utf8'))}`,
+  `- Escopo de código: ${describeScope(scope)}`,
   `- Modelo: ${modelFromTranscript(input.agent_transcript_path)}`,
   `- Agent ID: ${input.agent_id ?? 'desconhecido'}`,
   `- Data: ${now.toISOString()}`,

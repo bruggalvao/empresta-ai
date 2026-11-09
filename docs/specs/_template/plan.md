@@ -2,6 +2,14 @@
 
 Baseado em: [spec.md](./spec.md)
 
+Escopo de código: `apps/<app>/src/<pasta>` · `apps/<app>/package.json`
+
+O escopo lista, entre crases, todo código que pode mudar o resultado dos
+critérios de aceite (inclusive configuração de teste e build). Depois que o
+verificador aprova a spec, só mudança dentro do escopo invalida o registro.
+Sem esta linha, qualquer código do repositório invalida. Mudar o escopo
+também exige verificar de novo.
+
 ## Resumo técnico
 
 Uma ou duas frases sobre a abordagem escolhida.

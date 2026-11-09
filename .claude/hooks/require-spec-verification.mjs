@@ -11,9 +11,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   SPECS_DIR,
-  codeUnchangedSince,
+  codeScope,
   criteriaHash,
   isImplemented,
+  isRecordCurrent,
   listRecords,
   listSpecs,
   readStdinJson,
@@ -37,10 +38,8 @@ for (const feature of listSpecs(root)) {
   const tasks = read(`${SPECS_DIR}/${feature}/tasks.md`);
   if (isImplemented(spec) || !tasksComplete(tasks)) continue;
 
-  const hash = criteriaHash(spec);
-  const hasCurrentRecord = listRecords(root, feature).some(
-    (r) => r.commit && r.cleanTree && r.criteriaHash === hash && codeUnchangedSince(root, r.commit),
-  );
+  const opts = { hash: criteriaHash(spec), pathspec: codeScope(root, feature) };
+  const hasCurrentRecord = listRecords(root, feature).some((r) => isRecordCurrent(root, r, opts));
   if (!hasCurrentRecord) pending.push(feature);
 }
 

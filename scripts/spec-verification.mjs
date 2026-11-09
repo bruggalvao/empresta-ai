@@ -21,8 +21,8 @@ import { fileURLToPath } from 'node:url';
 export const SPECS_DIR = 'docs/specs';
 export const RECORDS_DIRNAME = 'verificacoes';
 
-// Everything that is not documentation/agent configuration counts as code.
-// Changing any of these after a verification makes the verification stale.
+// Fallback scope, for specs whose plan.md does not declare one: everything
+// that is not documentation/agent configuration counts as code.
 export const CODE_PATHSPEC = [
   '.',
   ':(exclude)docs',
@@ -34,8 +34,36 @@ export const CODE_PATHSPEC = [
   ':(exclude)*.html',
 ];
 
-// Untracked files only matter where code lives.
-const UNTRACKED_CODE_DIRS = ['apps', 'packages', 'scripts'];
+// Per-spec scope: plan.md declares the code that can affect its acceptance
+// criteria, in one line:
+//   Escopo de código: `apps/web/src` · `apps/web/package.json`
+// Only changes inside the scope make a verification stale.
+export const SCOPE_LINE = /^Escopo de código:\s*(.+)$/im;
+
+export function parseCodeScope(planText) {
+  const m = SCOPE_LINE.exec(planText ?? '');
+  if (!m) return null;
+  const paths = [...m[1].matchAll(/`([^`]+)`/g)].map((x) => x[1].trim().replace(/\\/g, '/').replace(/\/+$/, ''));
+  const valid = paths.length > 0 && paths.every((p) => p && !p.startsWith('/') && !p.split('/').includes('..') && !p.startsWith(':'));
+  return valid ? paths : null;
+}
+
+export function planRelPath(feature) {
+  return `${SPECS_DIR}/${feature}/plan.md`;
+}
+
+// rev === null reads plan.md from the working tree; otherwise from that commit.
+export function codeScope(root, feature, rev = null) {
+  const rel = planRelPath(feature);
+  const plan = rev
+    ? readFileAt(root, rev, rel)
+    : fs.existsSync(path.join(root, rel))
+      ? fs.readFileSync(path.join(root, rel), 'utf8')
+      : null;
+  return parseCodeScope(plan) ?? CODE_PATHSPEC;
+}
+
+export const describeScope = (pathspec) => (pathspec === CODE_PATHSPEC ? 'repositório inteiro (plan.md sem escopo)' : pathspec.join(' · '));
 
 export function git(root, args, { allowFail = false } = {}) {
   try {
@@ -124,30 +152,34 @@ export function tasksComplete(tasksText) {
 // ---------------------------------------------------------------------------
 // Code state
 
-function untrackedCodeFiles(root) {
-  const existingDirs = UNTRACKED_CODE_DIRS.filter((d) => fs.existsSync(path.join(root, d)));
-  if (!existingDirs.length) return [];
-  return git(root, ['ls-files', '--others', '--exclude-standard', '--', ...existingDirs])
+// Without a declared scope, untracked files only matter where code lives.
+const FALLBACK_UNTRACKED_DIRS = ['apps', 'packages', 'scripts'];
+
+function untrackedCodeFiles(root, pathspec) {
+  const where =
+    pathspec === CODE_PATHSPEC ? FALLBACK_UNTRACKED_DIRS.filter((d) => fs.existsSync(path.join(root, d))) : pathspec;
+  if (!where.length) return [];
+  return git(root, ['ls-files', '--others', '--exclude-standard', '--', ...where])
     .split('\n')
     .filter(Boolean);
 }
 
-// Modified tracked code files plus untracked files under code dirs.
-export function dirtyCodeFiles(root) {
-  const tracked = git(root, ['status', '--porcelain', '--untracked-files=no', '--', ...CODE_PATHSPEC])
+// Modified tracked files plus untracked files inside the scope.
+export function dirtyCodeFiles(root, pathspec = CODE_PATHSPEC) {
+  const tracked = git(root, ['status', '--porcelain', '--untracked-files=no', '--', ...pathspec])
     .split('\n')
     .filter(Boolean);
-  return [...tracked, ...untrackedCodeFiles(root).map((f) => `?? ${f}`)];
+  return [...tracked, ...untrackedCodeFiles(root, pathspec).map((f) => `?? ${f}`)];
 }
 
 // target === null means "the working tree".
-export function codeUnchangedSince(root, commit, target = null) {
+export function codeUnchangedSince(root, commit, target = null, pathspec = CODE_PATHSPEC) {
   if (!gitQuiet(root, ['cat-file', '-e', `${commit}^{commit}`])) return false;
   const args = ['diff', '--quiet', commit];
   if (target) args.push(target);
-  args.push('--', ...CODE_PATHSPEC);
+  args.push('--', ...pathspec);
   if (!gitQuiet(root, args)) return false;
-  if (target === null && untrackedCodeFiles(root).length) return false;
+  if (target === null && untrackedCodeFiles(root, pathspec).length) return false;
   return true;
 }
 
@@ -167,6 +199,7 @@ export function parseRecord(text) {
     commit: get('Commit'),
     cleanTree: (get('Árvore limpa') ?? '').toLowerCase().startsWith('sim'),
     criteriaHash: get('Hash dos CA'),
+    scope: get('Escopo de código'),
     verdict: normalizeVerdict(get('Veredito')),
     date: get('Data'),
   };
@@ -193,21 +226,26 @@ export function listRecords(root, feature) {
     });
 }
 
+// A record is valid for a state when: taken on a clean scope, same acceptance
+// criteria, same declared scope (a record made under another scope does not
+// count; records older than scopes carry none) and no change inside the scope
+// since the recorded commit.
+export function isRecordCurrent(root, record, { hash, pathspec, target = null }) {
+  return Boolean(
+    record.commit &&
+      record.cleanTree &&
+      record.criteriaHash === hash &&
+      (!record.scope || record.scope === describeScope(pathspec)) &&
+      codeUnchangedSince(root, record.commit, target, pathspec),
+  );
+}
+
 // Latest record that is still valid for the given state.
 //   specText: current spec.md content (or the content about to be written)
 //   target:   null for the working tree, or a commit-ish (CI)
 export function currentRecord(root, feature, specText, target = null) {
-  const hash = criteriaHash(specText);
-  const records = listRecords(root, feature).reverse();
-  return (
-    records.find(
-      (r) =>
-        r.commit &&
-        r.cleanTree &&
-        r.criteriaHash === hash &&
-        codeUnchangedSince(root, r.commit, target),
-    ) ?? null
-  );
+  const opts = { hash: criteriaHash(specText), pathspec: codeScope(root, feature, target), target };
+  return listRecords(root, feature).reverse().find((r) => isRecordCurrent(root, r, opts)) ?? null;
 }
 
 export function featureFromSpecPath(p) {

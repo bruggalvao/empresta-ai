@@ -2,6 +2,14 @@
 
 Baseado em: [spec.md](./spec.md)
 
+Escopo de código: `apps/web/src` · `apps/web/package.json` · `apps/web/vitest.config.ts` · `apps/web/tsconfig.json` · `apps/web/tsconfig.app.json` · `apps/web/tsconfig.test.json`
+
+O escopo é todo o `apps/web/src`, não só a pasta da biblioteca, porque o
+CA-9 vale para o `src` inteiro: uma tela nova que monte URL do Storage
+quebra esta spec. O `pnpm-lock.yaml` fica de fora de propósito — incluí-lo
+faria qualquer dependência nova em outro workspace invalidar a verificação;
+mudança de dependência do `web` aparece no `apps/web/package.json`.
+
 ## Resumo técnico
 
 Dois componentes React em `apps/web/src/lib/equipment-photo/`:
