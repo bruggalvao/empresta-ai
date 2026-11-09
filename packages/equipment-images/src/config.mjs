@@ -44,6 +44,10 @@ export const BLOCKED_TAGS = [
   'samsung', 'dell', 'hp', 'lenovo', 'asus', 'acer', 'microsoft', 'windows',
   'sony', 'canon', 'nikon', 'fujifilm', 'logitech', 'google', 'facebook',
   'twitter', 'instagram', 'youtube', 'android',
+  // added after the first human review (2026-11-09): camera brands with
+  // legible logos, and off-topic scenes (retro gear, coffee shots)
+  'olympus', 'panasonic', 'leica', 'gopro', 'kodak', 'polaroid', 'pentax',
+  'retro', 'vintage', 'cafe', 'coffee',
   // text and screen content
   'text', 'typography', 'letter', 'letters', 'word', 'words', 'code',
   'coding', 'programming', 'programmer', 'website', 'webpage', 'web design',
@@ -54,7 +58,9 @@ export const BLOCKED_TAGS = [
 // A candidate must carry at least one tag of its category, to keep
 // off-topic photos out (a "hdmi cable" search can return a TV).
 export const CATEGORY_TAGS = {
-  notebook: ['laptop', 'notebook', 'computer'],
+  // "notebook" and "computer" also match paper notebooks and desktops
+  // (first human review): a notebook photo must be tagged "laptop".
+  notebook: ['laptop'],
   monitor: ['monitor', 'screen', 'display', 'computer'],
   cabo: ['cable', 'cables', 'hdmi', 'usb', 'ethernet', 'wire', 'cord', 'plug', 'connector'],
   camera: ['camera', 'webcam', 'lens'],

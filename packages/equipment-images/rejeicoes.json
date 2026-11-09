@@ -1,0 +1,16 @@
+[
+  {
+    "patrimonio": "TI-0001",
+    "pixabayId": 7188564,
+    "pagina": "https://pixabay.com/photos/coffee-winter-cafe-caffeine-cup-7188564/",
+    "motivo": "Fora do tema: xícara de café e caderno de papel, sem notebook na foto (tag 'notebook' enganou o filtro)",
+    "reprovadaEm": "2026-11-09T16:30:11.437Z"
+  },
+  {
+    "patrimonio": "TI-0005",
+    "pixabayId": 4795762,
+    "pagina": "https://pixabay.com/photos/computer-laptop-tech-blue-computer-4795762/",
+    "motivo": "Direito de imagem: tela com conteúdo (código no laptop e página web no monitor)",
+    "reprovadaEm": "2026-11-09T16:30:15.733Z"
+  }
+]

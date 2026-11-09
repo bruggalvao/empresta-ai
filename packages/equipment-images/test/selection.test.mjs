@@ -24,6 +24,18 @@ test('direito de imagem: tags de pessoa, marca ou texto descartam a foto', () =>
   }
 });
 
+test('revisão 1: marca de câmera (olympus) e cena fora do tema (retro, coffee) descartam a foto', () => {
+  const camera = { patrimonio: 'TI-0012', categoria: 'camera' };
+  assert.match(evaluateHit(hit({ tags: 'camera, olympus, lens' }), camera).reason, /tag proibida: olympus/);
+  assert.match(evaluateHit(hit({ tags: 'camera, retro, vintage' }), camera).reason, /tag proibida/);
+  assert.match(evaluateHit(hit({ tags: 'laptop, coffee cup' }), item).reason, /tag proibida: coffee/);
+});
+
+test('revisão 1: notebook exige a tag "laptop" (caderno de papel tem tag "notebook")', () => {
+  assert.match(evaluateHit(hit({ tags: 'notebook, pen, desk' }), item).reason, /categoria notebook/);
+  assert.equal(evaluateHit(hit({ tags: 'laptop, desk' }), item).ok, true);
+});
+
 test('bloqueio por palavra inteira: "manhattan" não é "man"', () => {
   assert.equal(blockedTag(parseTags('laptop, manhattan, office')), null);
 });

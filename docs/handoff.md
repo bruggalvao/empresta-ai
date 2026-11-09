@@ -107,9 +107,18 @@ Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
 (verificador obrigatório) em `feature/verificador-obrigatorio`; Entrega 2
 (skill + biblioteca) em `feature/imagens-equipamentos`, empilhada sobre a
 Entrega 1. Nenhuma das duas tem PR ainda. Falta:
-- Rodar `images:prepare` (precisa da `PIXABAY_API_KEY` em `apps/api/.env`),
-  revisar por amostragem `packages/equipment-images/out/revisao.html` e o
-  usuário rodar `images:upload` no terminal dele.
+- O usuário rodar `images:upload` no terminal dele. As 12 fotos já foram
+  preparadas (`creditos.json`); `out/` não vai para o git, então em outra
+  máquina é preciso rodar `images:prepare` de novo (usa o cache/créditos).
+- Revisão visual 1 (2026-11-09): o agente olhou as 12 fotos; o usuário
+  reprovou 2 (TI-0001 fora do tema, TI-0005 tela com código — ver
+  `rejeicoes.json`) e o filtro foi ajustado (marcas de câmera, retro/coffee,
+  notebook exige tag `laptop`). O usuário **manteve** fotos em que o agente
+  apontou problema de direito de imagem: TI-0004 (mãos/pernas de pessoa),
+  TI-0007 (texto na tela e etiqueta de marca), TI-0012 (logo OLYMPUS) e as
+  substitutas TI-0001 (ASUS/Nikon/Logitech) e TI-0005 (logo Apple). As tags
+  do Pixabay quase nunca citam marca nem pessoa: o filtro por tag não cobre
+  esse risco, só a revisão humana.
 - Cadastrar `PIXABAY_API_KEY` nos dois projetos Vercel (decisão de seguir
   `rules/secrets.md` ao pé da letra).
 - A prova com erro plantado da Entrega 1, sobre a spec `dados-iniciais`.
