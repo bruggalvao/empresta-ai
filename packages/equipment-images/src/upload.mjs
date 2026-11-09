@@ -2,6 +2,7 @@
 // person in their own terminal, never by the agent (see assertHumanRun and
 // .claude/hooks/guard-image-upload.mjs).
 
+import dns from 'node:dns/promises';
 import fs from 'node:fs/promises';
 import { createClient } from '@supabase/supabase-js';
 import { BUCKET } from './config.mjs';
@@ -13,6 +14,32 @@ export function assertHumanRun(env = process.env) {
     throw new Error(
       'O upload para o Supabase não roda dentro de uma sessão de agente. ' +
         'Rode no seu terminal: pnpm --filter equipment-images images:upload',
+    );
+  }
+}
+
+// Fails early with a message that says what is wrong with SUPABASE_URL,
+// instead of the bare "fetch failed" from the HTTP client.
+export async function checkSupabaseUrl(url, lookup = (host) => dns.lookup(host)) {
+  let host;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' && parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+      throw new Error('protocolo');
+    }
+    host = parsed.hostname;
+  } catch {
+    throw new Error(`SUPABASE_URL inválida (${url}): use o Project URL, ex. https://<ref>.supabase.co`);
+  }
+  if (host.includes('[') || /project-ref/i.test(host)) {
+    throw new Error(`SUPABASE_URL ainda é o exemplo do .env.example (${host}): troque pelo Project URL do seu projeto`);
+  }
+  try {
+    await lookup(host);
+  } catch (err) {
+    throw new Error(
+      `SUPABASE_URL aponta para ${host}, que não foi encontrado (${err.code ?? err.message}). ` +
+        'Confira o Project URL no painel do Supabase (Project Settings → Data API) — o projeto pode ter sido apagado.',
     );
   }
 }
@@ -53,6 +80,7 @@ export async function upload({ env = process.env, log = console.log } = {}) {
   const url = env.SUPABASE_URL;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) throw new Error('SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY precisam estar em apps/api/.env');
+  await checkSupabaseUrl(url);
 
   const [equipment, credits, rejections] = await Promise.all([loadEquipment(), loadCredits(), loadRejections()]);
   const files = await describeFiles(credits);

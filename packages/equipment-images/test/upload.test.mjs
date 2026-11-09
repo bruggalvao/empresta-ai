@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { validateForUpload } from '../src/manifest.mjs';
-import { assertHumanRun } from '../src/upload.mjs';
+import { assertHumanRun, checkSupabaseUrl } from '../src/upload.mjs';
+
+test('SUPABASE_URL de projeto inexistente explica o problema em vez de "fetch failed"', async () => {
+  const notFound = async () => {
+    throw Object.assign(new Error('getaddrinfo ENOTFOUND'), { code: 'ENOTFOUND' });
+  };
+  await assert.rejects(checkSupabaseUrl('https://gkicttuoyjicaonzjoyp.supabase.co', notFound), /não foi encontrado \(ENOTFOUND\)/);
+  await assert.rejects(checkSupabaseUrl('https://[PROJECT-REF].supabase.co'), /inválida|exemplo/);
+  await assert.rejects(checkSupabaseUrl('http://abc.supabase.co'), /inválida/);
+  await assert.doesNotReject(checkSupabaseUrl('https://abc.supabase.co', async () => ({ address: '1.2.3.4' })));
+});
 
 const equipment = [{ patrimonio: 'TI-0001' }, { patrimonio: 'TI-0002' }];
 const credit = (patrimonio, pixabayId) => ({
