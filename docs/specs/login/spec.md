@@ -1,6 +1,6 @@
 # Spec: Login
 
-Status: implementada
+Status: aprovada
 Referências: [PRD.md](../../PRD.md) (item 1) · [LAYOUT.md](../../LAYOUT.md) §5.1 e §6 · [ADR 001](../../adr/001-stack.md) §2.2, §2.4, §2.6, §2.7, §2.8 · [ADR 002](../../adr/002-design-system.md) · spec [dados-iniciais](../dados-iniciais/spec.md) · briefing da prática ("entra pelo login do sistema")
 
 ## Problema
@@ -67,7 +67,7 @@ teste que o prova. IDs não são renumerados: um CA removido deixa o número
 vago. Mudar o texto desta seção invalida as verificações anteriores.
 
 - [ ] CA-1: O botão "Entrar" da landing leva a `/entrar`, que mostra a tela de login do LAYOUT §5.1 sem o botão "Entrar como Operações": título "Entrar", campos E-mail e Senha e o botão "Entrar".
-- [ ] CA-2: Com e-mail e senha de uma conta com vínculo, a pessoa vai para `/inicio`, que mostra seu nome, suas iniciais, a etiqueta do papel ("Colaborador" ou "Operações"), as abas do papel conforme LAYOUT §6 e o botão "Sair".
+- [ ] CA-2: Com e-mail e senha de uma conta com vínculo, a pessoa vai para `/inicio`, que mostra seu nome, suas iniciais, a etiqueta do papel ("Colaborador" ou "Operações"), as abas do papel (Colaborador: Catálogo, Meus empréstimos; Operações: Catálogo, Operações, Equipamentos — LAYOUT §6 sem "Meus empréstimos" para Operações, ver decisões) e o botão "Sair".
 - [ ] CA-3: Com credenciais recusadas pelo Supabase Auth, a tela mostra "E-mail ou senha incorretos.", mantém o e-mail e limpa a senha. Com e-mail ou senha vazios, a tela diz o que falta e não chama o Auth.
 - [ ] CA-4: Sem sessão, `/inicio` redireciona para `/entrar`; com sessão, `/entrar` redireciona para `/inicio`; recarregar `/inicio` com sessão mantém a pessoa dentro.
 - [ ] CA-5: "Sair" encerra a sessão no Supabase Auth e leva a `/entrar`; depois disso, `/inicio` volta a redirecionar para `/entrar`.
