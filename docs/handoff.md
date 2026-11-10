@@ -114,7 +114,34 @@ features do PRD).
 Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
 (verificador obrigatório) em `feature/verificador-obrigatorio`; Entrega 2
 (skill + biblioteca) em `feature/imagens-equipamentos`, empilhada sobre a
-Entrega 1. Nenhuma das duas tem PR ainda. Falta:
+Entrega 1; Entrega 3 (spec `dados-iniciais`, implementada e verificada) em
+`feature/dados-iniciais`, empilhada sobre a Entrega 2. Nenhuma tem PR ainda.
+
+Entrega 3 — histórico do verificador (registros em
+`docs/specs/dados-iniciais/verificacoes/`):
+- Rodada 1 (`077c7a3`): PRONTA, mas apontou que um `DIRECT_URL` local em
+  qualquer ponto do comando liberava migration de produção → corrigido em
+  `a3776db`.
+- Rodada 2 (`a3776db`): NÃO PRONTA — `$env:` via Bash, atribuição dupla,
+  subcomando entre aspas; e o verificador não rodou os checks porque foi
+  acionado com cwd em `apps/api` → corrigido em `45d2738`.
+- Rodada 3 (`45d2738`): NÃO PRONTA — expansão do shell (`de${X}ploy`) e
+  `git rebase --exec` → segunda camada no `prisma.config.ts` em `90677dd`;
+  usuário aceitou o limite (agente que apaga `CLAUDECODE` de propósito).
+- Rodada 4 (`90677dd`): PRONTA, **sem registro**: corrida entre o
+  `SubagentStop` e a escrita do transcript → hook corrigido em `e7a8c5a`
+  (a mensagem de `3ff630f` diz "rounds 4 and 5 records", mas só o da 5 existe).
+- Rodada 5 (`e7a8c5a`): PRONTA, registrada. CA-9 (produção) pendente.
+
+Falta (Entrega 3, em produção, pelo usuário — o agente é bloqueado):
+- Rodar o SQL de limpeza das tabelas de outros sistemas no Empresta.AI
+  Project (sem isso o `migrate deploy` falha com P3005, schema não vazio).
+- `apps/api/.env`: `DIRECT_URL` do Empresta.AI Project (Session pooler,
+  porta 5432) e `PROFESSOR_INITIAL_PASSWORD`.
+- `npx -y pnpm@12.5.1 --filter api db:deploy` e depois `db:seed`; o agente
+  confere o CA-9 com consultas somente leitura.
+
+Falta (Entregas 1 e 2):
 - Upload feito pelo usuário (2026-11-09) para o bucket público
   `equipamentos` do Empresta.AI Project. Conferido pelo agente: as 12 URLs
   `https://bnxelaknojdqswytnmuc.supabase.co/storage/v1/object/public/equipamentos/TI-00NN.jpg`
