@@ -99,6 +99,9 @@ model Equipment {
   status    EquipmentStatus   @default(AVAILABLE)
   // Free text; holds the maintenance note while status = MAINTENANCE.
   notes     String?
+  // Object path in the public "equipamentos" bucket (e.g. "TI-0001.jpg"). Null = no photo.
+  // Format enforced by a CHECK in the migration (same rule as apps/web/src/lib/equipment-photo).
+  imagePath String?           @map("image_path")
   createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
