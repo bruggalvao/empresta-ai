@@ -1,10 +1,10 @@
 import { createContext, useContext } from "react";
-import type { FetchMe } from "../lib/api/me";
+import type { Api } from "../lib/api/types";
 import type { AuthClient, Session, SignInResult } from "../lib/auth/types";
 
 // The Supabase client and the API call are injected, so tests run against
 // in-memory fakes.
-export type Services = { auth: AuthClient; fetchMe: FetchMe };
+export type Services = { auth: AuthClient; api: Api };
 
 export type SessionState = {
   status: "loading" | "ready";
@@ -13,7 +13,7 @@ export type SessionState = {
   /** Ends the session; an optional notice is shown on the login screen. */
   signOut(notice?: string): Promise<void>;
   notice: string | null;
-  fetchMe: FetchMe;
+  api: Api;
 };
 
 export const SessionContext = createContext<SessionState | null>(null);

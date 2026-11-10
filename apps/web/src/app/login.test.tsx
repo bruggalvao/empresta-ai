@@ -1,7 +1,6 @@
 // spec login: CA-1 to CA-5 and the interface side of CA-7.
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ApiError } from "../lib/api/me";
 import { LOGIN_MESSAGES, NO_ACCESS_MESSAGE } from "../pages/messages";
 import { FakeAuth, OPS, PROFESSOR, renderApp } from "../test/app";
 
@@ -12,6 +11,7 @@ async function fillAndSubmit(email: string, password: string) {
 }
 
 const navbar = () => screen.getByRole("navigation", { name: "Principal" });
+const tabs = () => within(navbar()).getAllByRole("listitem").map((li) => li.textContent);
 
 describe("login", () => {
   it("CA-1: o botão Entrar da landing leva a /entrar, com título, E-mail, Senha e Entrar, sem Entrar como Operações", async () => {
@@ -36,14 +36,13 @@ describe("login", () => {
     expect(nav.getByText("Marcelo Grilo")).toBeInTheDocument();
     expect(nav.getByText("MG")).toBeInTheDocument();
     expect(nav.getByText("Colaborador")).toBeInTheDocument();
-    expect(nav.getAllByRole("button", { name: /Catálogo|Meus empréstimos|Operações|Equipamentos/ }).map((b) => b.textContent)).toEqual([
-      "Catálogo",
-      "Meus empréstimos",
-    ]);
+    expect(tabs()).toEqual(["Catálogo", "Meus empréstimos"]);
     expect(nav.getByRole("button", { name: "Sair" })).toBeEnabled();
   });
 
-  it("CA-2: conta de Operações vê a etiqueta Operações e as quatro abas", async () => {
+  // Operations has no "Meus empréstimos": only a Colaborador borrows
+  // (spec solicitar-emprestimo, decisões).
+  it("CA-2: conta de Operações vê a etiqueta Operações e as abas do papel", async () => {
     renderApp("/entrar");
     await fillAndSubmit(OPS.email, "senha-ops");
 
@@ -51,12 +50,7 @@ describe("login", () => {
     const nav = within(navbar());
     expect(nav.getByText("CP")).toBeInTheDocument();
     expect(nav.getByText("Operações", { selector: "span" })).toBeInTheDocument();
-    expect(nav.getAllByRole("button", { name: /Catálogo|Meus empréstimos|Operações|Equipamentos/ }).map((b) => b.textContent)).toEqual([
-      "Catálogo",
-      "Operações",
-      "Equipamentos",
-      "Meus empréstimos",
-    ]);
+    expect(tabs()).toEqual(["Catálogo", "Operações", "Equipamentos"]);
   });
 
   it("CA-3: credencial recusada mostra a mensagem única, mantém o e-mail e limpa a senha", async () => {
@@ -75,15 +69,22 @@ describe("login", () => {
   });
 
   it("CA-3: e-mail ou senha vazios dizem o que falta e não chamam o Auth", async () => {
-    const app = renderApp("/entrar");
-    await fillAndSubmit("", "");
-
-    expect(await screen.findByText(LOGIN_MESSAGES.emailRequired)).toBeInTheDocument();
-    expect(screen.getByText(LOGIN_MESSAGES.passwordRequired)).toBeInTheDocument();
-
-    await fillAndSubmit(PROFESSOR.email, "");
-    expect(await screen.findByText(LOGIN_MESSAGES.passwordRequired)).toBeInTheDocument();
-    expect(app.auth.signInCalls).toBe(0);
+    // Each case on a fresh screen, so no message is left over from the previous one.
+    const cases = [
+      { email: "", password: "", shown: [LOGIN_MESSAGES.emailRequired, LOGIN_MESSAGES.passwordRequired] },
+      { email: "", password: "senha-certa", shown: [LOGIN_MESSAGES.emailRequired], hidden: LOGIN_MESSAGES.passwordRequired },
+      { email: PROFESSOR.email, password: "", shown: [LOGIN_MESSAGES.passwordRequired], hidden: LOGIN_MESSAGES.emailRequired },
+    ];
+    for (const { email, password, shown, hidden } of cases) {
+      const app = renderApp("/entrar");
+      await fillAndSubmit(email, password);
+      for (const message of shown) expect(await screen.findByText(message)).toBeInTheDocument();
+      if (hidden) expect(screen.queryByText(hidden)).not.toBeInTheDocument();
+      // Give a would-be submit time to reach the Auth before checking it never did.
+      await new Promise((r) => setTimeout(r, 50));
+      expect(app.auth.signInCalls).toBe(0);
+      app.unmount();
+    }
   });
 
   it("CA-4: sem sessão /inicio vai para /entrar; com sessão /entrar vai para /inicio; recarregar mantém a sessão", async () => {
@@ -119,11 +120,9 @@ describe("login", () => {
   });
 
   it("CA-7: conta sem acesso (403 em /v1/me) vê a mensagem no login e a sessão é encerrada", async () => {
+    // The fake API answers 403 for any account it does not know.
     const auth = new FakeAuth({ "sem.vinculo@empresa.test": "senha" });
-    const fetchMe = async () => {
-      throw new ApiError(403, "A conta não tem vínculo com nenhum tenant.");
-    };
-    const app = renderApp("/entrar", { auth, fetchMe });
+    const app = renderApp("/entrar", { auth });
     await fillAndSubmit("sem.vinculo@empresa.test", "senha");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(NO_ACCESS_MESSAGE);
