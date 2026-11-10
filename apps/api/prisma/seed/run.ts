@@ -37,7 +37,7 @@ export async function runSeed(prisma: PrismaClient, auth: AuthAdmin, input: Seed
           assetTag: e.assetTag,
           name: e.name,
           category: e.category,
-          status: "AVAILABLE",
+          status: e.status,
           imagePath: e.imagePath,
         },
       });
