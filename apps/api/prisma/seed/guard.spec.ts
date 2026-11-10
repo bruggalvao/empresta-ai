@@ -41,10 +41,17 @@ describe("proteção de produção", () => {
       "npx prisma db seed",
       "npx tsx prisma/seed.ts",
       `DIRECT_URL="${PROD_DB}" npx prisma migrate deploy`,
+      // A local DIRECT_URL on another command does not apply to the db command.
+      `DIRECT_URL="${LOCAL_DB}" true; npx prisma migrate deploy`,
+      `DIRECT_URL="${LOCAL_DB}" true && npx -y pnpm@12.5.1 --filter api db:seed`,
+      `DIRECT_URL="${LOCAL_DB}" npx prisma migrate dev; npx prisma migrate deploy`,
+      `echo DIRECT_URL="${LOCAL_DB}" | npx prisma migrate deploy`,
+      `$env:DIRECT_URL = "${LOCAL_DB}"; Write-Host x; npx prisma migrate deploy`,
     ]) {
       expect([command, hookDecision(command)]).toEqual([command, "deny"]);
     }
     expect(hookDecision(`DIRECT_URL="${LOCAL_DB}" npx prisma migrate dev --name x`)).toBe("allow");
+    expect(hookDecision(`$env:DIRECT_URL = "${LOCAL_DB}"; npx prisma migrate deploy`)).toBe("allow");
     expect(hookDecision("npx prisma generate")).toBe("allow");
   });
 });

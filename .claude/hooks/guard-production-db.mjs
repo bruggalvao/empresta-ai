@@ -28,11 +28,16 @@ const DB_WRITE = [
   /prisma\/seed\.ts\b/,
 ];
 
-// DIRECT_URL set inline to a local host, e.g.
-//   DIRECT_URL="postgresql://u:p@localhost:5433/db" npx prisma migrate dev
-//   $env:DIRECT_URL = "postgresql://u:p@127.0.0.1:5433/db"; npx prisma migrate dev
-const LOCAL_DIRECT_URL =
-  /(?:^|[\s;])(?:\$env:)?DIRECT_URL\s*=\s*["']?postgres(?:ql)?:\/\/[^@\s"']*@(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\//;
+// Allowed only as ONE command whose own environment points DIRECT_URL at a
+// local host, with nothing chained before or after (a local DIRECT_URL on
+// another command in the line would not apply to the database command):
+//   DIRECT_URL="postgresql://u:p@localhost:5433/db" npx prisma migrate dev ...
+//   $env:DIRECT_URL = "postgresql://u:p@127.0.0.1:5433/db"; npx prisma migrate dev ...
+const LOCAL_URL = String.raw`["']?postgres(?:ql)?:\/\/[^@\s"';&|]*@(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\/[^\s"';&|]*["']?`;
+const REST = String.raw`[^;&|<>\x60\n\r$()]+`; // the db command itself: no chaining, redirection or substitution
+const LOCAL_DIRECT_URL = new RegExp(
+  String.raw`^\s*(?:DIRECT_URL=${LOCAL_URL}\s+${REST}|\$env:DIRECT_URL\s*=\s*${LOCAL_URL}\s*;\s*${REST})$`,
+);
 
 try {
   const chunks = [];
