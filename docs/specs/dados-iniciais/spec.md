@@ -56,6 +56,7 @@ Nenhuma regra do PRD é alterada. Dados fixos desta entrega:
 | Papel do professor | não diz | `EMPLOYEE` (colaborador) no tenant `suporte_ti`, nome "Marcelo Grilo" | A Entrega 4 testa o fluxo do colaborador; decisão do usuário |
 | Re-execução | "não pode duplicar nada" | Equipamento existente tem nome, categoria e foto atualizados, mas **não** a situação; conta existente não tem a senha trocada | Situação passa a ser de Operações depois da carga; trocar senha em cada execução apagaria uma troca feita pela pessoa |
 | Quem roda em produção | não diz | O usuário, no terminal dele; o agente é bloqueado (hook + recusa do seed) | Regra da prática: "o agente nunca escreve em produção" |
+| Alcance do bloqueio (CA-8) | não diz | Duas camadas: o hook lê o texto do comando; `prisma.config.ts` e o seed recusam, já com o shell expandido, quando o agente (`CLAUDECODE`) aponta para banco ou Auth não locais. Isso cobre comando acidental e disfarce por sintaxe de shell. **Não** cobre um agente que remova `CLAUDECODE` do próprio ambiente de propósito: a credencial de produção continua no `apps/api/.env`. Risco aceito e registrado no ENTREGA.md | Decisão do usuário (2026-11-10), depois de três rodadas do verificador acharem brechas no hook baseado em texto; a alternativa (credencial de produção fora do repositório) foi oferecida e recusada |
 
 ## Critérios de aceite
 

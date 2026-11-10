@@ -2,7 +2,7 @@
 
 Baseado em: [spec.md](./spec.md)
 
-Escopo de código: `apps/api/prisma` · `apps/api/package.json` · `apps/api/jest.config.js` · `packages/equipment-images/equipamentos.json` · `packages/equipment-images/creditos.json` · `.claude/hooks/guard-production-db.mjs`
+Escopo de código: `apps/api/prisma` · `apps/api/prisma.config.ts` · `apps/api/package.json` · `apps/api/jest.config.js` · `packages/equipment-images/equipamentos.json` · `packages/equipment-images/creditos.json` · `.claude/hooks/guard-production-db.mjs`
 
 O escopo inclui a lista de equipamentos e os créditos das fotos (o seed
 lê os dois) e o hook que bloqueia o agente em produção (CA-8).
@@ -83,6 +83,13 @@ apps/api/prisma/seed/*.spec.ts     — um teste por CA (Testcontainers + AuthAdm
   `apps/api/.env`.
 - `assertSafeTarget` no seed: com `CLAUDECODE` definido, `DIRECT_URL` e
   `SUPABASE_URL` precisam ser locais; senão o seed para antes de conectar.
+- `assertSafePrismaCommand` no `prisma.config.ts` (carregado por todo
+  comando do Prisma, com o argv já expandido pelo shell): com `CLAUDECODE`,
+  `migrate dev|reset|deploy|resolve` e `db push|seed|execute` exigem
+  `DIRECT_URL` local. Acrescentado depois que o verificador achou disfarces
+  de shell (`de${X}ploy`) e `git rebase --exec` que passavam pelo hook.
+- Limite aceito: agente que remove `CLAUDECODE` de propósito não é coberto
+  (ver tabela de decisões da spec).
 
 ## Decisões técnicas e alternativas consideradas
 

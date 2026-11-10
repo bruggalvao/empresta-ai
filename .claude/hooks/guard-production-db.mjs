@@ -51,9 +51,13 @@ try {
   const input = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
   const command = String(input.tool_input?.command ?? '');
 
-  // A single git command only mentions these in its message.
+  // A single git command that cannot run other commands only mentions these
+  // in its message. rebase --exec, bisect run, difftool --extcmd and the
+  // like do run a shell, so only these subcommands qualify.
   const skeleton = command.replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n[\s\S]*?\n\s*\2\s*$/, '').trim();
-  if (/^git\s/.test(skeleton) && !/[;|&<>`\n]|\$\(|\s-c\s|alias/.test(skeleton)) process.exit(0);
+  const SAFE_GIT = /^git\s+(?:add|commit|status|diff|log|show|ls-files|rev-parse|restore\s+--staged|switch|branch)\b/;
+  const RUNS_COMMANDS = /[;|&<>`\n]|\$\(|\s-c\s|alias|--exec\b|--extcmd\b|--ext-diff\b|--textconv\b|\s-x\s/;
+  if (SAFE_GIT.test(skeleton) && !RUNS_COMMANDS.test(skeleton)) process.exit(0);
 
   const local = input.tool_name === 'PowerShell' ? POWERSHELL_LOCAL.test(command) : BASH_LOCAL.test(command);
   if (DB_WRITE.some((re) => re.test(normalize(command))) && !local) {

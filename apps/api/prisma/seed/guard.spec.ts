@@ -3,7 +3,7 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { assertSafeTarget } from "./guard.js";
+import { assertSafePrismaCommand, assertSafeTarget } from "./guard.js";
 
 const PROD_DB = "postgresql://postgres:x@db.bnxelaknojdqswytnmuc.supabase.co:5432/postgres";
 const PROD_AUTH = "https://bnxelaknojdqswytnmuc.supabase.co";
@@ -37,6 +37,17 @@ describe("proteção de produção", () => {
     expect(() => assertSafeTarget({ DIRECT_URL: PROD_DB, SUPABASE_URL: PROD_AUTH })).not.toThrow();
   });
 
+  it("CA-8: o prisma.config.ts recusa migration e seed do agente contra banco não local, qualquer que seja a sintaxe do shell", () => {
+    const agentProd = { CLAUDECODE: "1", DIRECT_URL: PROD_DB };
+    // argv as the Prisma CLI receives it, after the shell expanded de${X}ploy, "migrate", etc.
+    for (const argv of [["migrate", "deploy"], ["migrate", "--schema", "prisma/schema.prisma", "deploy"], ["db", "seed"], ["db", "push"], ["migrate", "dev", "--name", "x"]]) {
+      expect(() => assertSafePrismaCommand(argv, agentProd)).toThrow(/recusado: executado por agente/);
+    }
+    expect(() => assertSafePrismaCommand(["generate"], agentProd)).not.toThrow();
+    expect(() => assertSafePrismaCommand(["migrate", "deploy"], { CLAUDECODE: "1", DIRECT_URL: LOCAL_DB })).not.toThrow();
+    expect(() => assertSafePrismaCommand(["migrate", "deploy"], { DIRECT_URL: PROD_DB })).not.toThrow();
+  });
+
   it("CA-8: o hook nega ao agente migration e seed de produção, inclusive disfarçados", () => {
     expectDenied([
       "npx prisma migrate deploy",
@@ -62,6 +73,10 @@ describe("proteção de produção", () => {
       "npx prisma@7.10.0 migrate deploy",
       "node node_modules/prisma/build/index.js migrate deploy",
       "npx prisma migrate --schema prisma/schema.prisma deploy",
+      // verifier round 3: git subcommands that run a shell command
+      'git rebase --autostash --exec "npx -y pnpm@12.5.1 --filter api db:deploy" HEAD~1',
+      'git bisect run npx prisma migrate deploy',
+      'git difftool --extcmd "npx prisma migrate deploy"',
     ]);
     expectDenied([`$env:DIRECT_URL = "${LOCAL_DB}"; Write-Host x; npx prisma migrate deploy`], "PowerShell");
   });

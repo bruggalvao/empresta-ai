@@ -1,10 +1,16 @@
 import { config } from "dotenv";
 import { defineConfig, env } from "prisma/config";
+import { assertSafePrismaCommand } from "./prisma/seed/guard";
 
 // Per .env.example the API reads apps/api/.env; fall back to the repo-root .env
 // (dotenv never overrides variables that are already set).
 config();
 config({ path: "../../.env" });
+
+// Every Prisma CLI command loads this file, after the shell has expanded the
+// command line: an agent (CLAUDECODE) cannot migrate or seed a non-local
+// database whatever syntax it uses. Backs up .claude/hooks/guard-production-db.mjs.
+assertSafePrismaCommand(process.argv.slice(2), process.env);
 
 // Prisma 7: connection URLs live here, not in schema.prisma.
 // Migrations use the direct connection (port 5432); runtime uses DATABASE_URL
