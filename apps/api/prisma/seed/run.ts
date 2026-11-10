@@ -15,6 +15,12 @@ export type SeedSummary = {
   professorCreated: boolean;
 };
 
+// Prisma's interactive-transaction defaults (maxWait 2s to get a connection,
+// timeout 5s overall) are too tight for a remote Supabase: the first TLS
+// connection alone can take longer than 2s, and 13 sequential upserts pay one
+// round trip each. A one-off load can afford to wait.
+export const SEED_TRANSACTION_OPTIONS = { maxWait: 30_000, timeout: 120_000 } as const;
+
 export async function runSeed(prisma: PrismaClient, auth: AuthAdmin, input: SeedInput): Promise<SeedSummary> {
   const tenant = await prisma.$transaction(async (tx) => {
     const t = await tx.tenant.upsert({
@@ -37,7 +43,7 @@ export async function runSeed(prisma: PrismaClient, auth: AuthAdmin, input: Seed
       });
     }
     return t;
-  });
+  }, SEED_TRANSACTION_OPTIONS);
 
   const { email, fullName, password } = input.professor;
   let userId = await auth.findUserIdByEmail(email);

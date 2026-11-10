@@ -30,6 +30,45 @@ class FakeAuth implements AuthAdmin {
   }
 }
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// A pg pool that behaves like a far-away database: slow to open a new
+// connection (TLS handshake) and slow on every query (round trip).
+const LATENT = Symbol("latent");
+class LatentPool extends pg.Pool {
+  constructor(
+    connectionString: string,
+    private readonly latency: { connectMs: number; queryMs: number },
+  ) {
+    super({ connectionString });
+  }
+
+  private async acquire(): Promise<pg.PoolClient> {
+    const client = (await super.connect()) as pg.PoolClient & { [LATENT]?: true };
+    if (!client[LATENT]) {
+      await delay(this.latency.connectMs);
+      const query = client.query.bind(client) as (...args: unknown[]) => Promise<unknown>;
+      (client as { query: unknown }).query = async (...args: unknown[]) => {
+        await delay(this.latency.queryMs);
+        return query(...args);
+      };
+      client[LATENT] = true;
+    }
+    return client;
+  }
+
+  // pg calls connect() both ways: promise (adapter) and callback (pool.query).
+  // @ts-expect-error simplified signature of pg's overloaded connect()
+  override connect(callback?: (err: Error | undefined, client?: pg.PoolClient, done?: () => void) => void) {
+    const acquired = this.acquire();
+    if (!callback) return acquired;
+    acquired.then(
+      (client) => callback(undefined, client, () => client.release()),
+      (err: Error) => callback(err),
+    );
+  }
+}
+
 let container: StartedPostgreSqlContainer;
 let prisma: PrismaClient;
 
@@ -97,6 +136,25 @@ describe("seed dados-iniciais", () => {
     const byCategory = rows.reduce<Record<string, number>>((acc, r) => ({ ...acc, [r.category]: (acc[r.category] ?? 0) + 1 }), {});
     expect(byCategory).toEqual({ NOTEBOOK: 4, MONITOR: 3, CABLE: 3, CAMERA: 2 });
   }, SLOW);
+
+  // Production runs against a remote Supabase: opening the first connection
+  // took over 2s and each round trip adds latency, which broke Prisma's
+  // default interactive-transaction limits (maxWait 2s, timeout 5s).
+  it(
+    "CA-1: cria os 12 equipamentos mesmo com a latência de um banco remoto",
+    async () => {
+      const pool = new LatentPool(container.getConnectionUri(), { connectMs: 3_000, queryMs: 500 });
+      const remote = new PrismaClient({ adapter: new PrismaPg(pool) });
+      try {
+        await runSeed(remote, new FakeAuth(), await realInput());
+      } finally {
+        await remote.$disconnect();
+        await pool.end(); // an external pool is not closed by $disconnect()
+      }
+      expect(await prisma.equipment.count()).toBe(12);
+    },
+    SLOW,
+  );
 
   it("CA-2: TI-0004, TI-0007 e TI-0010 em manutenção; os outros 9 disponíveis", async () => {
     await runSeed(prisma, new FakeAuth(), await realInput());
