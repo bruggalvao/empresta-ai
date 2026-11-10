@@ -115,9 +115,12 @@ Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
 (verificador obrigatório) em `feature/verificador-obrigatorio`; Entrega 2
 (skill + biblioteca) em `feature/imagens-equipamentos`, empilhada sobre a
 Entrega 1. Nenhuma das duas tem PR ainda. Falta:
-- O usuário rodar `images:upload` no terminal dele. As 12 fotos já foram
-  preparadas (`creditos.json`); `out/` não vai para o git, então em outra
-  máquina é preciso rodar `images:prepare` de novo (usa o cache/créditos).
+- Upload feito pelo usuário (2026-11-09) para o bucket público
+  `equipamentos` do Empresta.AI Project. Conferido pelo agente: as 12 URLs
+  `https://bnxelaknojdqswytnmuc.supabase.co/storage/v1/object/public/equipamentos/TI-00NN.jpg`
+  respondem 200 sem login, `image/jpeg`, 800×600, com o mesmo SHA-256 de
+  `creditos.json`. `out/` não vai para o git: em outra máquina, rodar
+  `images:prepare` recria os arquivos a partir dos créditos e do cache.
 - Revisão visual 1 (2026-11-09): o agente olhou as 12 fotos; o usuário
   reprovou 2 (TI-0001 fora do tema, TI-0005 tela com código — ver
   `rejeicoes.json`) e o filtro foi ajustado (marcas de câmera, retro/coffee,
