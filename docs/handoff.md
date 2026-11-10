@@ -165,6 +165,31 @@ PRONTA. O hook de `Stop` bloqueia o encerramento enquanto o verificador
 ainda roda em segundo plano (não sabe que há verificação em curso):
 melhoria possível.
 
+Spec `solicitar-emprestimo` (Entrega 4, branch `feature/solicitar-emprestimo`,
+a partir de `feature/login`): implementada e verificada (PRONTA em
+`952d44b`). Conflitos do briefing decididos pelo PRD: limite 3 (não 5),
+14 dias corridos (não úteis); item 9 (catálogo sem crédito) recusado.
+Decisões do usuário: só Colaborador solicita (Operações vê o catálogo só
+para consulta, sem a aba "Meus empréstimos"); item de outra pessoa aparece
+só como "Emprestado"; modal de confirmação; busca e filtros incluídos.
+API: `GET /v1/equipment`, `POST /v1/loans` (transação com `FOR UPDATE` no
+vínculo; corrida no mesmo item barrada pelo índice único parcial; auditoria
+`loan.created`), `GET /v1/loans/mine`. Sem migration. O teste de corrida do
+limite foi conferido com a trava removida: falha nas 3 rodadas.
+
+Verificador pegou uma brecha minha (rodada de `952d44b`, login NÃO PRONTA):
+mudei as abas de Operações por uma linha na tabela de decisões, fora da
+seção de CA, o que mantinha o hash dos CA e evitava nova verificação,
+embora o CA-2 ainda dissesse "conforme LAYOUT §6". Corrigido escrevendo as
+abas no próprio CA-2 (`d22d67d`), com a spec voltando a "aprovada" até a
+nova rodada (PRONTA em `8f21ca5`). Material para o ENTREGA.md.
+
+Falta (Entrega 4, CA-13, em produção, pelo usuário): depois do deploy, com
+a conta de teste, conferir catálogo com fotos e crédito, `TI-0004/7/10`
+sem solicitar, solicitar até a recusa por limite e "Meus empréstimos";
+consulta somente leitura confirma zero empréstimos do professor. Limpar os
+empréstimos de teste em produção, se quiser, é do usuário.
+
 Falta (login, CA-10, em produção, pelo usuário):
 - Vercel `empresta-ai-api`: `DATABASE_URL`, `DIRECT_URL` (o build roda
   `prisma generate`, que carrega `prisma.config.ts`), `SUPABASE_URL`,
