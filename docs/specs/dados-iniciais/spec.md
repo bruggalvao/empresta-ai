@@ -1,6 +1,6 @@
 # Spec: Dados iniciais
 
-Status: aprovada
+Status: implementada
 Referências: [PRD.md](../../PRD.md) (itens 1 e 2) · [ADR 001](../../adr/001-stack.md) §2.5, §2.6, §2.7 · [ADR 003](../../adr/003-processamento-de-imagens.md) · [rules/migration.md](../../../rules/migration.md) · [rules/secrets.md](../../../rules/secrets.md) · spec [biblioteca-renderizacao](../biblioteca-renderizacao/spec.md) · briefing "dados iniciais" da prática
 
 ## Problema
