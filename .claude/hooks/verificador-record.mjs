@@ -57,21 +57,38 @@ function reportFromTranscript(file) {
   return '';
 }
 
+// The transcript can lag the turn (Claude Code hooks docs): SubagentStop may
+// fire before the SubagentHandback line is on disk. That race lost the round 4
+// record of dados-iniciais. Re-read for a few seconds before giving up.
+const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+function waitForReport(file, { attempts = 20, delayMs = 250 } = {}) {
+  for (let i = 0; i < attempts; i++) {
+    const report = reportFromTranscript(file);
+    if (/^\s*Spec:/m.test(report)) return report;
+    sleep(delayMs);
+  }
+  return '';
+}
+
 const last = String(input.last_assistant_message ?? '');
-const message = (/^\s*Spec:/m.test(last) ? last : reportFromTranscript(input.agent_transcript_path) || last).replace(
+const message = (/^\s*Spec:/m.test(last) ? last : waitForReport(input.agent_transcript_path) || last).replace(
   /\r\n/g,
   '\n',
 );
 
-function block(reason) {
-  // Ask the verifier to fix its output format once; never loop.
-  if (input.stop_hook_active) process.exit(0);
-  process.stdout.write(JSON.stringify({ decision: 'block', reason }));
+function notify(text) {
+  process.stdout.write(JSON.stringify({ systemMessage: text }));
   process.exit(0);
 }
 
-function notify(text) {
-  process.stdout.write(JSON.stringify({ systemMessage: text }));
+function block(reason) {
+  // Ask the verifier to fix its output format once; never loop. A verifier
+  // that already handed back cannot continue, so never fail silently: tell
+  // the main agent that no record was written.
+  if (input.stop_hook_active) {
+    notify(`Nenhum registro de verificação foi gravado: ${reason} Acione o verificador-spec de novo.`);
+  }
+  process.stdout.write(JSON.stringify({ decision: 'block', reason, systemMessage: `Registro não gravado ainda: ${reason}` }));
   process.exit(0);
 }
 
