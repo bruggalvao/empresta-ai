@@ -38,15 +38,17 @@ function pinnedPnpmVersion(cwd) {
 }
 
 try {
-  const { readStdinJson } = await import('../../scripts/spec-verification.mjs');
+  const { readStdinJson, repoRoot } = await import('../../scripts/spec-verification.mjs');
   const input = await readStdinJson();
   // Registered in .claude/settings.json for every agent; applies only inside
   // the verifier (agent_type is set when the hook fires in a subagent).
   if (input.agent_type !== 'verificador-spec') process.exit(0);
   if (input.tool_name !== 'Bash' && input.tool_name !== 'PowerShell') process.exit(0);
 
+  // packageManager lives in the root package.json, whatever the subagent's cwd
+  // is (a verifier started from apps/api could not run the checks otherwise).
   const cwd = input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
-  const pnpmVersion = pinnedPnpmVersion(cwd);
+  const pnpmVersion = pinnedPnpmVersion(repoRoot(cwd));
   const runner = pnpmVersion ? `(?:pnpm|npx -y pnpm@${pnpmVersion.replace(/\./g, '\\.')})` : 'pnpm';
 
   const ALLOWED = [

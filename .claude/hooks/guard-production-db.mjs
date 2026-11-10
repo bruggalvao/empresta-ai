@@ -20,24 +20,30 @@ function deny(reason) {
   process.exit(0);
 }
 
-// Commands that write schema or data through Prisma or the package scripts.
+// Commands that write schema or data. Matched on a normalized copy (quotes,
+// backslashes and backticks removed, so `npx prisma "migrate" deploy` is
+// caught) and without requiring a "prisma" prefix (prisma@7, node
+// .../prisma/build/index.js, wrappers). Over-matching only costs a denial.
 const DB_WRITE = [
-  /prisma\s+migrate\s+(?:dev|reset|deploy|resolve)\b/,
-  /prisma\s+db\s+(?:seed|push|execute)\b/,
+  /\bmigrate\b(?:\s+\S+)*?\s+(?:dev|reset|deploy|resolve)\b/,
+  /\bdb\b(?:\s+\S+)*?\s+(?:seed|push|execute)\b/,
   /\bdb:(?:deploy|seed)\b/,
-  /prisma\/seed\.ts\b/,
+  /\bseed\.(?:ts|js|mjs)\b/,
 ];
+const normalize = (s) => s.replace(/\\\r?\n/g, ' ').replace(/["'`\\]/g, '');
 
 // Allowed only as ONE command whose own environment points DIRECT_URL at a
-// local host, with nothing chained before or after (a local DIRECT_URL on
-// another command in the line would not apply to the database command):
-//   DIRECT_URL="postgresql://u:p@localhost:5433/db" npx prisma migrate dev ...
-//   $env:DIRECT_URL = "postgresql://u:p@127.0.0.1:5433/db"; npx prisma migrate dev ...
+// local host. The rest of the line: a known runner, no chaining, pipes,
+// redirection or substitution, and no second DIRECT_URL or `env`, which
+// could replace the local value.
+//   Bash:       DIRECT_URL="postgresql://u:p@localhost:5433/db" npx prisma migrate dev ...
+//   PowerShell: $env:DIRECT_URL = "postgresql://u:p@127.0.0.1:5433/db"; npx prisma migrate dev ...
+// The PowerShell form is accepted only from the PowerShell tool: in Bash,
+// `$env:...` expands to nothing and the `;` would run the command unguarded.
 const LOCAL_URL = String.raw`["']?postgres(?:ql)?:\/\/[^@\s"';&|]*@(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\/[^\s"';&|]*["']?`;
-const REST = String.raw`[^;&|<>\x60\n\r$()]+`; // the db command itself: no chaining, redirection or substitution
-const LOCAL_DIRECT_URL = new RegExp(
-  String.raw`^\s*(?:DIRECT_URL=${LOCAL_URL}\s+${REST}|\$env:DIRECT_URL\s*=\s*${LOCAL_URL}\s*;\s*${REST})$`,
-);
+const REST = String.raw`(?![\s\S]*\b(?:DIRECT_URL|env)\b)(?:npx|pnpm|node|prisma)\s[^;&|<>\x60\n\r$()]+`;
+const BASH_LOCAL = new RegExp(String.raw`^\s*DIRECT_URL=${LOCAL_URL}\s+${REST}$`);
+const POWERSHELL_LOCAL = new RegExp(String.raw`^\s*\$env:DIRECT_URL\s*=\s*${LOCAL_URL}\s*;\s*${REST}$`);
 
 try {
   const chunks = [];
@@ -49,7 +55,8 @@ try {
   const skeleton = command.replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n[\s\S]*?\n\s*\2\s*$/, '').trim();
   if (/^git\s/.test(skeleton) && !/[;|&<>`\n]|\$\(|\s-c\s|alias/.test(skeleton)) process.exit(0);
 
-  if (DB_WRITE.some((re) => re.test(command)) && !LOCAL_DIRECT_URL.test(command)) {
+  const local = input.tool_name === 'PowerShell' ? POWERSHELL_LOCAL.test(command) : BASH_LOCAL.test(command);
+  if (DB_WRITE.some((re) => re.test(normalize(command))) && !local) {
     deny(
       'Migration e seed contra o banco do apps/api/.env (produção) são rodados por uma pessoa, não pelo agente. ' +
         'Para banco local, declare no próprio comando: DIRECT_URL="postgresql://...@localhost:<porta>/<db>" <comando>. ' +
