@@ -1,6 +1,6 @@
 # Spec: Solicitar empréstimo
 
-Status: aprovada
+Status: implementada
 Referências: [PRD.md](../../PRD.md) (itens 1, 2 e 3; regras de Operações) · [LAYOUT.md](../../LAYOUT.md) §5.2, §5.3, §5.6, §6, §7 · [ADR 001](../../adr/001-stack.md) §2.4, §2.6, §2.8, §2.10 · [ADR 002](../../adr/002-design-system.md) · [modelagem-dados.md](../../modelagem-dados.md) · specs [login](../login/spec.md), [dados-iniciais](../dados-iniciais/spec.md), [biblioteca-renderizacao](../biblioteca-renderizacao/spec.md) · briefing "solicitar empréstimo" da prática
 
 ## Problema
