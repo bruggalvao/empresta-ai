@@ -65,8 +65,10 @@ me/membership.repository.ts — Prisma: vínculos do userId com perfil e tenant
   assina com ES256, conferido no JWKS público em 2026-11-10).
 - Prisma no build: hoje `tsconfig` exclui `src/generated` e o client só é
   gerado localmente (fora do git). O build passa a rodar `prisma generate`
-  antes do `tsc` e a compilar o client gerado para `dist/`; a Vercel faz o
-  mesmo. `prisma.config.ts` não pode exigir `DIRECT_URL` só para gerar.
+  antes do `tsc`; como `src` importa o client, o `tsc` o compila para
+  `dist/generated`. `prisma.config.ts` (escopo da spec dados-iniciais) lê
+  `DIRECT_URL` ao carregar, então essa variável precisa existir também no
+  projeto Vercel da API, como o `.env.example` (seção 5) já lista.
 - Variáveis já existentes no `.env.example`; nenhuma nova.
 
 ## Frontend (`apps/web/src`)
@@ -118,7 +120,7 @@ components/Button.tsx, Field.tsx — variantes do ADR 002 §2.5 (primary/ghost/b
 - Depende da conta do professor (spec dados-iniciais, em produção) e do
   projeto Supabase `bnxelaknojdqswytnmuc`.
 - Produção depende de passos do usuário (o agente não faz): variáveis na
-  Vercel (`empresta-ai-api`: `DATABASE_URL`, `SUPABASE_URL`,
+  Vercel (`empresta-ai-api`: `DATABASE_URL`, `DIRECT_URL`, `SUPABASE_URL`,
   `SUPABASE_JWKS_URL`, `CORS_ORIGIN`; `empresta-ai-front`:
   `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`), corrigir
   `apps/web/.env` local (ainda aponta para o projeto antigo), criar a conta

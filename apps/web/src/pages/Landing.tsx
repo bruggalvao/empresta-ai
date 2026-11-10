@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { Brand } from "../components/Brand";
 import { SectionRule } from "../components/SectionRule";
 import { StatusPill, type EquipmentStatus } from "../components/StatusPill";
@@ -111,14 +112,12 @@ export default function Landing() {
             >
               Regras
             </a>
-            <button
-              type="button"
-              disabled
-              title="Login em breve"
-              className="h-9 cursor-not-allowed rounded-md border border-divider px-4 font-medium opacity-45"
+            <Link
+              to="/entrar"
+              className="inline-flex h-9 items-center rounded-md border border-accent px-4 font-medium text-accent-300 hover:bg-accent/12 active:bg-accent/22"
             >
               Entrar
-            </button>
+            </Link>
           </div>
         </nav>
         <SectionRule />
