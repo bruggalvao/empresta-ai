@@ -1,6 +1,6 @@
 # Spec: Login
 
-Status: aprovada
+Status: implementada
 Referências: [PRD.md](../../PRD.md) (item 1) · [LAYOUT.md](../../LAYOUT.md) §5.1 e §6 · [ADR 001](../../adr/001-stack.md) §2.2, §2.4, §2.6, §2.7, §2.8 · [ADR 002](../../adr/002-design-system.md) · spec [dados-iniciais](../dados-iniciais/spec.md) · briefing da prática ("entra pelo login do sistema")
 
 ## Problema
