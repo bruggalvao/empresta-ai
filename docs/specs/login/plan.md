@@ -85,7 +85,8 @@ components/Button.tsx, Field.tsx — variantes do ADR 002 §2.5 (primary/ghost/b
 ```
 
 - Abas por papel (LAYOUT §6): Colaborador → Catálogo, Meus empréstimos;
-  Operações → Catálogo, Operações, Equipamentos, Meus empréstimos.
+  Operações → Catálogo, Operações, Equipamentos (sem "Meus empréstimos",
+  revisão de 2026-11-10 pela spec solicitar-emprestimo; ver CA-2).
 - Iniciais: primeira letra do primeiro e do último nome.
 - `/inicio`: sem sessão → `/entrar`; `/v1/me` 403 → mensagem da spec no
   login + `signOut`; 401 → `signOut` e `/entrar`.
