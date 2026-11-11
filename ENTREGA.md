@@ -308,26 +308,6 @@ merge de #6 (`5778948`):
 | Empréstimos de teste desfeitos antes da correção | usuário (SQL dele), agente conferiu | consulta: 0 empréstimos em aberto no sistema | ok |
 | API sem token / token falso / CORS / rotas da SPA | agente | `curl`: 401 em Problem Details, só a origem do front no CORS, `/entrar`, `/catalogo`, `/meus-emprestimos` com 200 | ok |
 
-**Funcionou local e quebrou na Vercel** (o aviso do enunciado aconteceu três
-vezes, todas de variável de ambiente, nenhuma de código da spec):
-
-- Preview da API de #5/#6 falhou com `PrismaConfigEnvError: Cannot resolve
-  environment variable: DIRECT_URL`: o build passou a rodar `prisma generate`,
-  que carrega `prisma.config.ts`, e o ambiente Preview não tinha a variável.
-  Previsto no plan.md do login; produção passou depois de cadastrada.
-- Site em branco: `VITE_SUPABASE_ANON_KEY` não estava no projeto do front
-  (as outras duas `VITE_` estavam). Variável cadastrada e redeploy.
-- "Não foi possível carregar seus dados": a API respondia 500 com `Can't
-  reach database server at base`. "base" é a base que a biblioteca do Postgres
-  usa quando a string de conexão não é um endereço completo: o
-  `DATABASE_URL` da Vercel estava malformado. Corrigido pelo usuário e
-  redeploy. O agente não abriu o valor (tem a senha do banco).
-
-Também no deploy: ao apagar a branch da #2 pela linha de comando, o GitHub
-fechou a #3 em vez de redirecioná-la para a `main`; a branch foi recriada no
-mesmo commit, a #3 reaberta e apontada para a `main`, e as seguintes foram
-redirecionadas antes de cada merge.
-
 Ficou de fora, sabendo:
 
 - **Fotos com marca/pessoa mantidas.** O contrato da skill pede nenhuma foto

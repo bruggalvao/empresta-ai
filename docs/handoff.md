@@ -209,10 +209,13 @@ Prova com erro plantado (Entrega 1, "Provado"; 2026-11-10, spec
 Deploy (2026-11-10): PRs #2 a #6 mergeadas na `main` com merge commit, em
 ordem (último merge `5778948`); front e API em produção na Vercel com as
 variáveis cadastradas pelo usuário. Conferência em produção feita (CA-9 dos
-dados iniciais, CA-10 do login, CA-13 da Entrega 4): resultados e os três
-problemas de variável de ambiente (Preview sem `DIRECT_URL`, front sem
-`VITE_SUPABASE_ANON_KEY`, `DATABASE_URL` malformado) estão na seção 8 do
-[ENTREGA.md](../ENTREGA.md). Professor com 0 empréstimos; empréstimos de
+dados iniciais, CA-10 do login, CA-13 da Entrega 4): resultados na seção 8
+do [ENTREGA.md](../ENTREGA.md). No deploy houve três problemas de variável
+de ambiente, todos resolvidos pelo usuário na Vercel: Preview da API sem
+`DIRECT_URL`, front sem `VITE_SUPABASE_ANON_KEY` (site em branco) e
+`DATABASE_URL` malformado (API com "Can't reach database server at base").
+Ao apagar a branch da #2 pela linha de comando, o GitHub fechou a #3; foi
+reaberta e redirecionada para a `main`. Professor com 0 empréstimos; empréstimos de
 teste devolvidos. Pendências conhecidas também na seção 8 do ENTREGA.md
 (lacunas de teste, ADR 001 §2.6, site dependente das variáveis do Supabase).
 `apps/web/.env` local ainda aponta para o projeto antigo.
