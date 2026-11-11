@@ -114,7 +114,47 @@ features do PRD).
 Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
 (verificador obrigatório) em `feature/verificador-obrigatorio`; Entrega 2
 (skill + biblioteca) em `feature/imagens-equipamentos`, empilhada sobre a
-Entrega 1. Nenhuma das duas tem PR ainda. Falta:
+Entrega 1; Entrega 3 (spec `dados-iniciais`, implementada e verificada) em
+`feature/dados-iniciais`, empilhada sobre a Entrega 2. Nenhuma tem PR ainda.
+
+Entrega 3 — histórico do verificador (registros em
+`docs/specs/dados-iniciais/verificacoes/`):
+- Rodada 1 (`077c7a3`): PRONTA, mas apontou que um `DIRECT_URL` local em
+  qualquer ponto do comando liberava migration de produção → corrigido em
+  `a3776db`.
+- Rodada 2 (`a3776db`): NÃO PRONTA — `$env:` via Bash, atribuição dupla,
+  subcomando entre aspas; e o verificador não rodou os checks porque foi
+  acionado com cwd em `apps/api` → corrigido em `45d2738`.
+- Rodada 3 (`45d2738`): NÃO PRONTA — expansão do shell (`de${X}ploy`) e
+  `git rebase --exec` → segunda camada no `prisma.config.ts` em `90677dd`;
+  usuário aceitou o limite (agente que apaga `CLAUDECODE` de propósito).
+- Rodada 4 (`90677dd`): PRONTA, **sem registro**: corrida entre o
+  `SubagentStop` e a escrita do transcript → hook corrigido em `e7a8c5a`
+  (a mensagem de `3ff630f` diz "rounds 4 and 5 records", mas só o da 5 existe).
+- Rodada 5 (`e7a8c5a`): PRONTA, registrada.
+- Rodada 6 (`5ba78cd`): PRONTA, registrada. Verificou a correção da
+  transação do seed (abaixo).
+
+Produção (2026-11-10, executado pelo usuário):
+- Limpeza das tabelas de outros sistemas, `db:deploy` (2 migrations) e
+  `db:seed` no Empresta.AI Project.
+- A 1ª execução do seed falhou sem gravar nada ("Unable to start a
+  transaction in the given time"): os limites padrão do Prisma (2 s / 5 s)
+  não bastam para o Supabase remoto. Corrigido em `5ba78cd` (30 s / 2 min,
+  teste com latência simulada). A 2ª execução passou.
+- **CA-9 conferido pelo agente, só leitura:** 1 tenant (`suporte_ti`);
+  12 equipamentos com patrimônio, nome e categoria da lista; `TI-0004`,
+  `TI-0007` e `TI-0010` em `MAINTENANCE`, os outros 9 em `AVAILABLE`;
+  `image_path` = `<patrimônio>.jpg` e o CHECK `equipment_image_path_format`
+  presente; 0 empréstimos no total; 1 conta do professor, e-mail
+  confirmado, com senha, perfil "Marcelo Grilo", 1 vínculo `EMPLOYEE` em
+  `suporte_ti`, 0 empréstimos; as 12 URLs públicas
+  `.../object/public/equipamentos/TI-00NN.jpg` respondem 200 `image/jpeg`.
+- Não conferido pelo agente: entrar com a senha de
+  `PROFESSOR_INITIAL_PASSWORD` (o agente não digita senha de produção); fica
+  para a spec `login` ou para o usuário.
+
+Falta (Entregas 1 e 2):
 - Upload feito pelo usuário (2026-11-09) para o bucket público
   `equipamentos` do Empresta.AI Project. Conferido pelo agente: as 12 URLs
   `https://bnxelaknojdqswytnmuc.supabase.co/storage/v1/object/public/equipamentos/TI-00NN.jpg`

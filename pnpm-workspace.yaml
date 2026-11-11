@@ -8,3 +8,8 @@ allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false
   unrs-resolver: false
+  # Transitive deps of testcontainers (apps/api tests): optional native SSH
+  # acceleration and a version-check postinstall; not needed to run.
+  cpu-features: false
+  protobufjs: false
+  ssh2: false
