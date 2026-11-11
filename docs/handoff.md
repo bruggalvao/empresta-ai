@@ -206,28 +206,19 @@ Prova com erro plantado (Entrega 1, "Provado"; 2026-11-10, spec
   achou uma lacuna real: o teste do CA-6 passa com o bug (põe `TI-0004` em
   `AVAILABLE` e espera `AVAILABLE`), quem pega é só o CA-2. Não corrigido.
 
-Falta (Entrega 4, CA-13, em produção, pelo usuário): depois do deploy, com
-a conta de teste, conferir catálogo com fotos e crédito, `TI-0004/7/10`
-sem solicitar, solicitar até a recusa por limite e "Meus empréstimos";
-consulta somente leitura confirma zero empréstimos do professor. Limpar os
-empréstimos de teste em produção, se quiser, é do usuário.
+Deploy (2026-11-10): PRs #2 a #6 mergeadas na `main` com merge commit, em
+ordem (último merge `5778948`); front e API em produção na Vercel com as
+variáveis cadastradas pelo usuário. Conferência em produção feita (CA-9 dos
+dados iniciais, CA-10 do login, CA-13 da Entrega 4): resultados e os três
+problemas de variável de ambiente (Preview sem `DIRECT_URL`, front sem
+`VITE_SUPABASE_ANON_KEY`, `DATABASE_URL` malformado) estão na seção 8 do
+[ENTREGA.md](../ENTREGA.md). Professor com 0 empréstimos; empréstimos de
+teste devolvidos. Pendências conhecidas também na seção 8 do ENTREGA.md
+(lacunas de teste, ADR 001 §2.6, site dependente das variáveis do Supabase).
+`apps/web/.env` local ainda aponta para o projeto antigo.
 
-Falta (login, CA-10, em produção, pelo usuário):
-- Vercel `empresta-ai-api`: `DATABASE_URL`, `DIRECT_URL` (o build roda
-  `prisma generate`, que carrega `prisma.config.ts`), `SUPABASE_URL`,
-  `SUPABASE_JWKS_URL`, `CORS_ORIGIN=https://empresta-ai-front.vercel.app`.
-- Vercel `empresta-ai-front`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
-  `VITE_API_URL=https://empresta-ai-api.vercel.app/v1`.
-- Corrigir `apps/web/.env` local (ainda aponta para o projeto antigo).
-- Conta de teste própria (não usar a do professor nos testes): criar no
-  Supabase Auth com e-mail confirmado, mais perfil e vínculo `EMPLOYEE` em
-  `suporte_ti`.
-- Levar as branches empilhadas à `main` (push/PR, com autorização) para o
-  deploy; conferir o CA-10 no link da Vercel.
-- Lacunas de teste apontadas pelo verificador, sem reprovar: o teste de
-  campos vazios do CA-3 é fraco (não há caso só com e-mail vazio);
-  `authSettingsFromEnv` (emissor e JWKS a partir de `SUPABASE_URL`) só é
-  exercitada em produção; falha de rede no "Sair" passa calada.
+Próximo passo: tag `entrega-pratica` na `main` depois do merge do PR que
+fecha o ENTREGA.md.
 
 Falta (Entregas 1 e 2):
 - Upload feito pelo usuário (2026-11-09) para o bucket público

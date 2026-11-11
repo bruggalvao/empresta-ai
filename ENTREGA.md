@@ -1,13 +1,18 @@
 # Entrega da prática
 
-> Rascunho escrito antes do deploy (2026-11-10). As partes marcadas com
-> **[após o deploy]** são preenchidas depois da conferência em produção e
-> antes da tag `entrega-pratica`.
-
 ## Links
 
 - Repositório (monorepo: `apps/web` e `apps/api`): https://github.com/bruggalvao/empresta-ai
-- Produção (Vercel): **[após o deploy]** front `https://empresta-ai-front.vercel.app`, API `https://empresta-ai-api.vercel.app/v1`
+- Produção (Vercel): https://empresta-ai-front.vercel.app (API em `https://empresta-ai-api.vercel.app/v1`)
+
+Cada entrega entrou na `main` por PR com merge commit, na ordem das
+dependências: [#2](https://github.com/bruggalvao/empresta-ai/pull/2)
+(Entrega 1) → [#3](https://github.com/bruggalvao/empresta-ai/pull/3)
+(Entrega 2) → [#4](https://github.com/bruggalvao/empresta-ai/pull/4)
+(Entrega 3) → [#5](https://github.com/bruggalvao/empresta-ai/pull/5)
+(login) → [#6](https://github.com/bruggalvao/empresta-ai/pull/6)
+(Entrega 4). Merge commit, e não squash, para os hashes citados aqui
+continuarem existindo na `main`. O CI de specs passou em cada uma.
 
 Specs desta prática (todas com `Status: implementada` e registro PRONTA válido,
 conferido por `node scripts/spec-verification.mjs check --base main`):
@@ -246,7 +251,7 @@ tabelas): recusados, com o comando entregue para o usuário rodar.
 | CA-6 | seed.spec.ts:210 (com a lacuna acima) | ATENDIDO |
 | CA-7 | seed.spec.ts:226 | ATENDIDO |
 | CA-8 | guard.spec.ts:28, :40, :51, :84 | ATENDIDO |
-| CA-9 | manual, registrado em docs/handoff.md | NÃO AUTOMATIZÁVEL — conferido só leitura em produção (12 itens, situações, `image_path`, 0 empréstimos, conta do professor, 12 URLs 200); falta o login com a senha **[após o deploy]** |
+| CA-9 | manual, registrado em docs/handoff.md e na seção 8 | NÃO AUTOMATIZÁVEL — conferido em produção: só leitura no banco (12 itens, situações, `image_path`, 0 empréstimos, conta do professor, 12 URLs 200) e, depois do deploy, o professor entrou com a senha padrão (último acesso registrado no Auth) e continuou com 0 empréstimos |
 
 **Tabela final — solicitar-emprestimo** (`20261110T202606Z-952d44b.md`, PRONTA):
 
@@ -264,7 +269,7 @@ tabelas): recusados, com o comando entregue para o usuário rodar.
 | CA-10 | catalog.test.tsx:134; loanRules.test.ts:20-21 | ATENDIDO |
 | CA-11 | catalog.test.tsx:147 | ATENDIDO |
 | CA-12 | catalog.test.tsx:177, :197 | ATENDIDO |
-| CA-13 | manual em produção | NÃO AUTOMATIZÁVEL — **[após o deploy]** |
+| CA-13 | manual em produção, seção 8 | NÃO AUTOMATIZÁVEL — conferido em produção com a conta de teste (seção 8) |
 
 ## 7. Uma regra sua que esta prática pôs à prova
 
@@ -287,10 +292,41 @@ tabelas): recusados, com o comando entregue para o usuário rodar.
 
 ## 8. O que ficou de fora e o que faria diferente
 
-**[após o deploy]** Conferência em produção (seção 07 do enunciado): login
-do professor com a senha padrão, CA-10 do login, CA-13 da Entrega 4 e a parte
-pendente do CA-9 dos dados iniciais. Depende de: variáveis nos dois projetos
-Vercel, conta de teste própria e as branches na `main`.
+**Conferência em produção** (seção 07 do enunciado; CA-9 dos dados
+iniciais, CA-10 do login, CA-13 da Entrega 4), em 2026-11-10, depois do
+merge de #6 (`5778948`):
+
+| item | quem conferiu | como | resultado |
+|------|---------------|------|-----------|
+| Professor entra com a senha padrão e vê "Marcelo Grilo" / "Colaborador" | usuário, no link | navegador | ok; Auth registra o último acesso às 23:13 (São Paulo) |
+| 12 equipamentos com foto 4:3 e "Fotos: Pixabay" com link | usuário, no link | navegador, com a conta de teste | ok |
+| `TI-0004`, `TI-0007`, `TI-0010` não podem ser solicitados | usuário + agente | navegador; consulta só leitura: nenhum empréstimo nesses itens | ok |
+| Solicitar cria o empréstimo, tira do disponível e aparece em "Meus empréstimos" com a devolução | usuário + agente | navegador; consulta: 3 empréstimos da conta de teste (`TI-0006`, `TI-0008`, `TI-0009`), retirada 10/11, devolução 24/11 (14 dias corridos), 3 linhas `loan.created` na auditoria | ok |
+| Limite de 3 com a recusa e o motivo | usuário | navegador: com 3 itens, os demais disponíveis mostram "Limite de 3 itens" desabilitado; a recusa da API (409 `loan_limit`) é provada pelo teste do CA-3/CA-4, porque o log da Vercel no plano gratuito guarda só 1 hora | ok, observado pelo usuário |
+| Recarregar continua logado; "Sair" encerra | usuário | navegador | ok |
+| Conta do professor com zero empréstimos | agente | consulta só leitura | 0 empréstimos, 0 auditorias |
+| Empréstimos de teste desfeitos antes da correção | usuário (SQL dele), agente conferiu | consulta: 0 empréstimos em aberto no sistema | ok |
+| API sem token / token falso / CORS / rotas da SPA | agente | `curl`: 401 em Problem Details, só a origem do front no CORS, `/entrar`, `/catalogo`, `/meus-emprestimos` com 200 | ok |
+
+**Funcionou local e quebrou na Vercel** (o aviso do enunciado aconteceu três
+vezes, todas de variável de ambiente, nenhuma de código da spec):
+
+- Preview da API de #5/#6 falhou com `PrismaConfigEnvError: Cannot resolve
+  environment variable: DIRECT_URL`: o build passou a rodar `prisma generate`,
+  que carrega `prisma.config.ts`, e o ambiente Preview não tinha a variável.
+  Previsto no plan.md do login; produção passou depois de cadastrada.
+- Site em branco: `VITE_SUPABASE_ANON_KEY` não estava no projeto do front
+  (as outras duas `VITE_` estavam). Variável cadastrada e redeploy.
+- "Não foi possível carregar seus dados": a API respondia 500 com `Can't
+  reach database server at base`. "base" é a base que a biblioteca do Postgres
+  usa quando a string de conexão não é um endereço completo: o
+  `DATABASE_URL` da Vercel estava malformado. Corrigido pelo usuário e
+  redeploy. O agente não abriu o valor (tem a senha do banco).
+
+Também no deploy: ao apagar a branch da #2 pela linha de comando, o GitHub
+fechou a #3 em vez de redirecioná-la para a `main`; a branch foi recriada no
+mesmo commit, a #3 reaberta e apontada para a `main`, e as seguintes foram
+redirecionadas antes de cada merge.
 
 Ficou de fora, sabendo:
 
@@ -311,6 +347,13 @@ Ficou de fora, sabendo:
 - **Partes do ADR 001 ainda não feitas:** `packages/api-contract` com orval
   (o tipo da API está escrito à mão no front), shadcn/ui, lint na API,
   `AsyncLocalStorage`.
+- **Site inteiro depende das variáveis do Supabase:** sem
+  `VITE_SUPABASE_ANON_KEY`, até a landing quebrou, porque a sessão se
+  inscreve no cliente do Supabase ao abrir o app. O cliente é criado sob
+  demanda, mas não o suficiente. Não corrigido: mexe no escopo de três specs
+  e a causa real (variável faltando) foi resolvida.
+- **Conta extra no Auth:** há uma conta sem perfil nem vínculo, nunca
+  usada, criada durante os testes; não tem acesso a nada.
 - **Ruído do gatilho:** o hook de `Stop` bloqueia o encerramento enquanto o
   verificador ainda roda em segundo plano, porque não sabe que há
   verificação em curso.
