@@ -1,11 +1,18 @@
-import type { Role } from "./api/me";
+import type { Role } from "./api/types";
 
 export const ROLE_LABEL: Record<Role, string> = { EMPLOYEE: "Colaborador", OPERATIONS: "Operações" };
 
-// LAYOUT §6: tabs per role.
-export const ROLE_TABS: Record<Role, string[]> = {
-  EMPLOYEE: ["Catálogo", "Meus empréstimos"],
-  OPERATIONS: ["Catálogo", "Operações", "Equipamentos", "Meus empréstimos"],
+export type Tab = { label: string; to?: string };
+
+// LAYOUT §6, except that Operations has no "Meus empréstimos": only a
+// Colaborador borrows (spec solicitar-emprestimo, decisões). Tabs without
+// `to` are screens that do not exist yet and stay disabled.
+export const ROLE_TABS: Record<Role, Tab[]> = {
+  EMPLOYEE: [
+    { label: "Catálogo", to: "/catalogo" },
+    { label: "Meus empréstimos", to: "/meus-emprestimos" },
+  ],
+  OPERATIONS: [{ label: "Catálogo", to: "/catalogo" }, { label: "Operações" }, { label: "Equipamentos" }],
 };
 
 /** First letter of the first and last names: "Marcelo Grilo" → "MG". */

@@ -5,11 +5,11 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { routes } from "./app/routes";
 import { SessionProvider } from "./app/session";
 import "./index.css";
-import { createFetchMe } from "./lib/api/me";
+import { createApi } from "./lib/api/client";
 import { createSupabaseAuthClient } from "./lib/auth/supabaseAuthClient";
 import { getSupabase } from "./lib/supabaseClient";
 
-const services = { auth: createSupabaseAuthClient(getSupabase), fetchMe: createFetchMe() };
+const services = { auth: createSupabaseAuthClient(getSupabase), api: createApi() };
 const queryClient = new QueryClient();
 const router = createBrowserRouter(routes);
 

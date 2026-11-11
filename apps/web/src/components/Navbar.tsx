@@ -1,10 +1,12 @@
-import type { Role } from "../lib/api/me";
+import { NavLink } from "react-router";
+import type { Role } from "../lib/api/types";
 import { initials, ROLE_LABEL, ROLE_TABS } from "../lib/roles";
 import { Brand } from "./Brand";
 import { SectionRule } from "./SectionRule";
 
-// LAYOUT §6. None of the tab screens exist yet (spec login, decisões), so
-// the tabs show what is coming and stay disabled.
+const TAB = "flex h-full items-center border-b-2 px-3.5 text-[13.5px]";
+
+// LAYOUT §6: sticky 60px bar; active tab with the accent underline.
 type NavbarProps = { fullName: string; role: Role; onSignOut(): void };
 
 export function Navbar({ fullName, role, onSignOut }: NavbarProps) {
@@ -14,15 +16,21 @@ export function Navbar({ fullName, role, onSignOut }: NavbarProps) {
         <Brand />
         <ul className="flex h-full items-stretch">
           {ROLE_TABS[role].map((tab) => (
-            <li key={tab} className="flex">
-              <button
-                type="button"
-                disabled
-                title="Em breve"
-                className="h-full cursor-not-allowed border-b-2 border-transparent px-3.5 text-[13.5px] text-text/55"
-              >
-                {tab}
-              </button>
+            <li key={tab.label} className="flex">
+              {tab.to ? (
+                <NavLink
+                  to={tab.to}
+                  className={({ isActive }) =>
+                    `${TAB} ${isActive ? "border-accent text-text" : "border-transparent text-text/55 hover:text-text"}`
+                  }
+                >
+                  {tab.label}
+                </NavLink>
+              ) : (
+                <button type="button" disabled title="Em breve" className={`${TAB} cursor-not-allowed border-transparent text-text/55`}>
+                  {tab.label}
+                </button>
+              )}
             </li>
           ))}
         </ul>

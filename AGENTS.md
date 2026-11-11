@@ -73,6 +73,11 @@ Isso não depende de lembrar: é garantido por hooks
 - **Escopo:** o `plan.md` de cada spec declara, na linha `Escopo de código:`,
   o código que pode afetar os CA. Mudança fora dele não invalida a
   verificação; sem a linha, vale o repositório inteiro.
+- **Mudança de comportamento vai no CA:** decisão que altera o que um CA
+  exige (inclusive tomada em outra spec) é escrita no texto do CA, com a
+  spec voltando a `aprovada` até nova verificação. Registrar só na tabela
+  de decisões mantém o hash dos CA e muda o comportamento sem verificador
+  (aconteceu na spec `login`, CA-2, rodada de `952d44b`).
 
 Verificação só vale para código commitado: commite antes de acionar o
 verificador.

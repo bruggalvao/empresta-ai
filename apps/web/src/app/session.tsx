@@ -4,7 +4,7 @@ import { type Services, SessionContext } from "./session-context";
 
 // Session state for the whole app (spec login, CA-2 to CA-5, CA-7).
 export function SessionProvider({ services, children }: { services: Services; children: ReactNode }) {
-  const { auth, fetchMe } = services;
+  const { auth, api } = services;
   const [status, setStatus] = useState<"loading" | "ready">("loading");
   const [session, setSession] = useState<Session | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -51,8 +51,8 @@ export function SessionProvider({ services, children }: { services: Services; ch
   );
 
   const value = useMemo(
-    () => ({ status, session, signIn, signOut, notice, fetchMe }),
-    [status, session, signIn, signOut, notice, fetchMe],
+    () => ({ status, session, signIn, signOut, notice, api }),
+    [status, session, signIn, signOut, notice, api],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

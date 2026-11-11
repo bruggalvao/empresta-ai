@@ -32,6 +32,9 @@ introduz.
 Cada critério tem um ID fixo (`CA-1`, `CA-2`, ...), citado no nome do
 teste que o prova. IDs não são renumerados: um CA removido deixa o número
 vago. Mudar o texto desta seção invalida as verificações anteriores.
+Decisão que muda o que um CA exige — inclusive vinda de outra spec — é
+escrita no texto do próprio CA, não só numa tabela de decisões: fora
+daqui ela não invalida a verificação e o comportamento muda sem verificador.
 
 - [ ] CA-1: Critério verificável 1
 - [ ] CA-2: Critério verificável 2
