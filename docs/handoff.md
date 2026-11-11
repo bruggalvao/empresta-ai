@@ -154,6 +154,34 @@ Produção (2026-11-10, executado pelo usuário):
   `PROFESSOR_INITIAL_PASSWORD` (o agente não digita senha de produção); fica
   para a spec `login` ou para o usuário.
 
+Spec `login` (branch `feature/login`, a partir de `feature/dados-iniciais`):
+implementada e verificada (PRONTA em `aed95d6`). Front com React Router
+(`/`, `/entrar`, `/inicio` protegida), tela de login do LAYOUT §5.1 sem o
+botão de Operações, tela inicial com a barra de navegação; API com
+`AuthGuard` (jose, JWKS ES256 do projeto) e `GET /v1/me`. O mesmo commit
+mexeu no escopo das outras duas specs (`apps/web/src`,
+`apps/*/package.json`); as duas foram verificadas de novo e continuam
+PRONTA. O hook de `Stop` bloqueia o encerramento enquanto o verificador
+ainda roda em segundo plano (não sabe que há verificação em curso):
+melhoria possível.
+
+Falta (login, CA-10, em produção, pelo usuário):
+- Vercel `empresta-ai-api`: `DATABASE_URL`, `DIRECT_URL` (o build roda
+  `prisma generate`, que carrega `prisma.config.ts`), `SUPABASE_URL`,
+  `SUPABASE_JWKS_URL`, `CORS_ORIGIN=https://empresta-ai-front.vercel.app`.
+- Vercel `empresta-ai-front`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
+  `VITE_API_URL=https://empresta-ai-api.vercel.app/v1`.
+- Corrigir `apps/web/.env` local (ainda aponta para o projeto antigo).
+- Conta de teste própria (não usar a do professor nos testes): criar no
+  Supabase Auth com e-mail confirmado, mais perfil e vínculo `EMPLOYEE` em
+  `suporte_ti`.
+- Levar as branches empilhadas à `main` (push/PR, com autorização) para o
+  deploy; conferir o CA-10 no link da Vercel.
+- Lacunas de teste apontadas pelo verificador, sem reprovar: o teste de
+  campos vazios do CA-3 é fraco (não há caso só com e-mail vazio);
+  `authSettingsFromEnv` (emissor e JWKS a partir de `SUPABASE_URL`) só é
+  exercitada em produção; falha de rede no "Sair" passa calada.
+
 Falta (Entregas 1 e 2):
 - Upload feito pelo usuário (2026-11-09) para o bucket público
   `equipamentos` do Empresta.AI Project. Conferido pelo agente: as 12 URLs

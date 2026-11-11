@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "types": ["node"] },
-  "exclude": ["src/generated", "dist", "node_modules", "**/*.spec.ts"]
+  "exclude": ["src/generated", "src/test", "dist", "node_modules", "**/*.spec.ts"]
 }
