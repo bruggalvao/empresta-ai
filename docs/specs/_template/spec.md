@@ -29,8 +29,12 @@ introduz.
 
 ## Critérios de aceite
 
-- [ ] Critério verificável 1
-- [ ] Critério verificável 2
+Cada critério tem um ID fixo (`CA-1`, `CA-2`, ...), citado no nome do
+teste que o prova. IDs não são renumerados: um CA removido deixa o número
+vago. Mudar o texto desta seção invalida as verificações anteriores.
+
+- [ ] CA-1: Critério verificável 1
+- [ ] CA-2: Critério verificável 2
 
 ## Fora de escopo
 

@@ -5,7 +5,7 @@ sobrescrito** — reflete o estado mais recente, não um histórico. Antes de
 começar qualquer tarefa, leia este arquivo inteiro. Ao final de uma
 sessão de trabalho relevante, atualize-o.
 
-Última atualização: 2026-10-19
+Última atualização: 2026-11-09
 
 ## Estado geral
 
@@ -45,7 +45,16 @@ endpoint de health.
 - Skills de agente versionadas em `.agents/skills/` e
   `.claude/skills/`, com `skills-lock.json`.
 - Subagent `verificador-spec` em `.claude/agents/verificador-spec.md`
-  (verifica os critérios de aceite de uma spec antes de dá-la por pronta).
+  (verifica os critérios de aceite de uma spec antes de dá-la por pronta),
+  tornado obrigatório por hooks (ver seção "Verificação de specs" do
+  [AGENTS.md](../AGENTS.md)): gatilho no `Stop` do agente principal, trava
+  de `Status: implementada`, registros em `docs/specs/<feature>/verificacoes/`
+  gravados pelo `SubagentStop`, Bash do verificador restrito a lint/test/build
+  e git somente leitura, e checagem no CI
+  (`.github/workflows/spec-verification.yml`). Lógica comum em
+  `scripts/spec-verification.mjs`. Template de spec agora exige IDs `CA-n`.
+  Pedido do tech lead de o verificador corrigir teste quebrado foi
+  recusado (contraria a independência exigida) — registrar no ENTREGA.md.
 
 - Vercel (time BGGTeam, projetos ligados ao GitHub, deploy automático a
   cada push na `main`): `empresta-ai-front` (Root Directory `apps/web`,
@@ -81,6 +90,12 @@ há remoto). Próximo passo natural: criar o remoto e dar push, completar o scaf
 (`packages/*`) conforme a ADR 001, ou escrever a primeira spec de feature
 (candidata natural: catálogo de equipamentos, por ser a base das outras
 features do PRD).
+
+Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
+(verificador obrigatório) implementada em `feature/verificador-obrigatorio`.
+Falta a prova com erro plantado, que será feita sobre a spec
+`dados-iniciais` (Entrega 3) quando ela estiver implementada. Os hooks de
+frontmatter do verificador ainda não foram exercitados numa rodada real.
 
 ## Decisões pendentes / dúvidas em aberto
 

@@ -32,6 +32,7 @@ docs/specs/<nome-curto-da-feature>/
   spec.md   — o quê e por quê (requisitos, escopo, critérios de aceite)
   plan.md   — como (design técnico, dados, contratos, decisões de implementação)
   tasks.md  — checklist de execução, quebrado em passos verificáveis
+  verificacoes/ — uma rodada do verificador-spec por arquivo (gerado por hook, não editar)
 ```
 
 Use `docs/specs/_template/` como ponto de partida: copie os três arquivos
