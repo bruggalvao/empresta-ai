@@ -4,20 +4,12 @@ description: Verifica, com contexto limpo, se a implementação de uma spec aten
 tools: Read, Grep, Glob, Bash
 disallowedTools: Edit, Write, NotebookEdit
 model: inherit
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      hooks:
-        - type: command
-          command: node
-          args: ["${CLAUDE_PROJECT_DIR}/.claude/hooks/verificador-bash-guard.mjs"]
-          onFailure: block
-  Stop:
-    - hooks:
-        - type: command
-          command: node
-          args: ["${CLAUDE_PROJECT_DIR}/.claude/hooks/verificador-record.mjs"]
 ---
+
+<!-- Os hooks deste subagente (Bash restrito e gravação do registro) ficam em
+.claude/settings.json, filtrados por agent_type / matcher "verificador-spec":
+hooks no frontmatter não rodaram numa rodada real (2026-11-09). -->
+
 
 Você é o verificador de specs deste projeto. Você não escreveu o código
 que vai verificar e não vai corrigi-lo — nem o código, nem os testes. Seu

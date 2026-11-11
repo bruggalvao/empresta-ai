@@ -53,8 +53,24 @@ endpoint de health.
   e git somente leitura, e checagem no CI
   (`.github/workflows/spec-verification.yml`). Lógica comum em
   `scripts/spec-verification.mjs`. Template de spec agora exige IDs `CA-n`.
+  Todos os hooks ficam em `.claude/settings.json`: hooks no frontmatter do
+  subagente não rodaram na primeira rodada real (corrigido em `4071865`).
+  Validade do registro é por escopo: o `plan.md` declara `Escopo de código:`
+  e só mudança ali invalida a verificação (antes, qualquer código do repo
+  invalidava — o ajuste do filtro de fotos derrubou o registro da biblioteca).
   Pedido do tech lead de o verificador corrigir teste quebrado foi
   recusado (contraria a independência exigida) — registrar no ENTREGA.md.
+- Skill `imagens-equipamentos` (`.claude/skills/`) sobre o workspace
+  `packages/equipment-images`: Pixabay (cache 24h), filtro de tags,
+  recorte 800×600 com jimp ([ADR 003](adr/003-processamento-de-imagens.md)),
+  `creditos.json`/`rejeicoes.json` versionados, folha de revisão e upload
+  para o bucket público `equipamentos`. O upload é só humano (hook
+  `guard-image-upload.mjs` + recusa com `CLAUDECODE`). Precisa de
+  `PIXABAY_API_KEY` em `apps/api/.env`.
+- Biblioteca de renderização em `apps/web/src/lib/equipment-photo/`
+  (spec `biblioteca-renderizacao`, implementada e verificada): toda foto de
+  equipamento passa por `EquipmentPhotoArea` + `EquipmentPhoto`. O
+  `apps/web` agora tem `test` (Vitest + Testing Library + jsdom 28).
 
 - Vercel (time BGGTeam, projetos ligados ao GitHub, deploy automático a
   cada push na `main`): `empresta-ai-front` (Root Directory `apps/web`,
@@ -75,10 +91,14 @@ endpoint de health.
 - Remoto git: `origin` = https://github.com/bruggalvao/empresta-ai.git, com
   `main` publicada. O filtro `--filter=...[origin/main]` dos checks já
   funciona. As demais branches seguem só locais.
-- Projeto Supabase real (banco, Auth, chaves) — o `.env` local referencia um
-  projeto que ainda precisa ser criado. Requer confirmação do usuário
-  antes de criar (ver [rules/restrictions.md](../rules/restrictions.md)).
-- Qualquer spec de feature em `docs/specs/` além do template.
+- Supabase configurado no app. Decisão do usuário (2026-11-09): o projeto é
+  **Empresta.AI Project** (`bnxelaknojdqswytnmuc`, organização "time do
+  bgg", plano free, já com 2 projetos ativos). O endereço antigo
+  `gkicttuoyjicaonzjoyp.supabase.co` não existe mais (DNS ENOTFOUND) e ainda
+  está no `apps/web/.env`; o `apps/api/.env` passou a apontar para o projeto
+  certo para o upload das fotos. Falta: corrigir `apps/web/.env`, cadastrar
+  as variáveis na Vercel e aplicar migrations/seed (Entrega 3, com
+  confirmação do usuário).
 - Telas do produto (login, catálogo, empréstimos, Operações). Só existe a
   landing page.
 
@@ -92,10 +112,29 @@ há remoto). Próximo passo natural: criar o remoto e dar push, completar o scaf
 features do PRD).
 
 Prática SDD (`pratica-sdd-subagentes.html`, fora do git): Entrega 1
-(verificador obrigatório) implementada em `feature/verificador-obrigatorio`.
-Falta a prova com erro plantado, que será feita sobre a spec
-`dados-iniciais` (Entrega 3) quando ela estiver implementada. Os hooks de
-frontmatter do verificador ainda não foram exercitados numa rodada real.
+(verificador obrigatório) em `feature/verificador-obrigatorio`; Entrega 2
+(skill + biblioteca) em `feature/imagens-equipamentos`, empilhada sobre a
+Entrega 1. Nenhuma das duas tem PR ainda. Falta:
+- Upload feito pelo usuário (2026-11-09) para o bucket público
+  `equipamentos` do Empresta.AI Project. Conferido pelo agente: as 12 URLs
+  `https://bnxelaknojdqswytnmuc.supabase.co/storage/v1/object/public/equipamentos/TI-00NN.jpg`
+  respondem 200 sem login, `image/jpeg`, 800×600, com o mesmo SHA-256 de
+  `creditos.json`. `out/` não vai para o git: em outra máquina, rodar
+  `images:prepare` recria os arquivos a partir dos créditos e do cache.
+- Revisão visual 1 (2026-11-09): o agente olhou as 12 fotos; o usuário
+  reprovou 2 (TI-0001 fora do tema, TI-0005 tela com código — ver
+  `rejeicoes.json`) e o filtro foi ajustado (marcas de câmera, retro/coffee,
+  notebook exige tag `laptop`). O usuário **manteve** fotos em que o agente
+  apontou problema de direito de imagem: TI-0004 (mãos/pernas de pessoa),
+  TI-0007 (texto na tela e etiqueta de marca), TI-0012 (logo OLYMPUS) e as
+  substitutas TI-0001 (ASUS/Nikon/Logitech) e TI-0005 (logo Apple). As tags
+  do Pixabay quase nunca citam marca nem pessoa: o filtro por tag não cobre
+  esse risco, só a revisão humana.
+- Cadastrar `PIXABAY_API_KEY` nos dois projetos Vercel (decisão de seguir
+  `rules/secrets.md` ao pé da letra).
+- A prova com erro plantado da Entrega 1, sobre a spec `dados-iniciais`.
+- Decidir na spec da Entrega 4 o conflito entre o briefing ("sem texto de
+  crédito") e o CA-7 da biblioteca.
 
 ## Decisões pendentes / dúvidas em aberto
 

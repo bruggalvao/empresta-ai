@@ -1,0 +1,22 @@
+{
+  "name": "equipment-images",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Tooling behind the imagens-equipamentos skill: Pixabay search, 800x600 crop, credits and upload to Supabase Storage.",
+  "scripts": {
+    "images:prepare": "node --env-file-if-exists=../../apps/api/.env src/cli.mjs prepare",
+    "images:reject": "node src/cli.mjs reject",
+    "images:review": "node src/cli.mjs review",
+    "images:upload": "node --env-file-if-exists=../../apps/api/.env src/cli.mjs upload",
+    "lint": "oxlint src test",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.119.0",
+    "jimp": "1.6.1"
+  },
+  "devDependencies": {
+    "oxlint": "^1.81.0"
+  }
+}
